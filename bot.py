@@ -101,62 +101,110 @@ INTEL_HUB = [
 ]
 
 # ---------------------------------------------------------
-# 2. GÜNÜN GİZEMLİ FALI HAVUZU (Mükerrer Korumalı)
+# 2. GÜNÜN GİZEMLİ FALI HAVUZU (Çok Dilli)
 # ---------------------------------------------------------
 FORTUNE_HUB = [
     {
         "title_tr": "🔮 Günün İstihbarat Falı: Bilinmeyen Frekans",
         "title_en": "🔮 Daily Intel Fortune: The Unknown Frequency",
+        "title_ar": "🔮 فبركة الاستخبارات اليومية: التردد المجهول",
+        "title_hi": "🔮 दैनिक खुफिया भाग्य: अज्ञात आवृत्ति",
         "desc_tr": "Bugün küresel ağlarda dönen enerjiler, gizli bir anlaşmanın veya uzun süredir aradığın bir sorunun cevabının önüne çıkacağını gösteriyor. Çevrendeki dijital sinyallere dikkat et.",
-        "desc_en": "The energies circulating in global networks today indicate that a secret agreement or the answer to a long-sought question will cross your path. Pay attention to digital signals around you."
+        "desc_en": "The energies circulating in global networks today indicate that a secret agreement or the answer to a long-sought question will cross your path. Pay attention to digital signals around you.",
+        "desc_ar": "تشير الطاقات المتداولة في الشبكات العالمية اليوم إلى أن اتفاقاً سرياً أو إجابة على سؤال طال البحث عنه ستعترض طريقك.",
+        "desc_hi": "आज वैश्विक नेटवर्क में घूम रही ऊर्जाएं यह संकेत देती हैं कि एक गुप्त समझौता या लंबे समय से तलाशे जा रहे प्रश्न का उत्तर आपके सामने आएगा।"
     },
     {
         "title_tr": "🔮 Günün İstihbarat Falı: Gölgeler ve Strateji",
         "title_en": "🔮 Daily Intel Fortune: Shadows and Strategy",
+        "title_ar": "🔮 فبركة الاستخبارات اليومية: الظلال والاستراتيجية",
+        "title_hi": "🔮 दैनिक खुफिया भाग्य: छाया और रणनीति",
         "desc_tr": "Kriptik bir dönemdesin. Bugün alacağın ani bir haber, kariyerinde veya planlarında radikal bir rota değişikliğine sebep olabilir. Sezgilerine güven.",
-        "desc_en": "You are in a cryptic phase. Sudden news you receive today may cause a radical change of course in your career or plans. Trust your intuition."
+        "desc_en": "You are in a cryptic phase. Sudden news you receive today may cause a radical change of course in your career or plans. Trust your intuition.",
+        "desc_ar": "أنت في مرحلة معقدة. قد تتسبب الأخبار المفاجئة التي تتلقاها اليوم في تغيير جذري في المسار في حياتك المهنية أو خططك.",
+        "desc_hi": "आप एक गुप्त चरण में हैं। आज आपको मिलने वाली अचानक की खबर आपके करियर या योजनाओं में बदलाव ला सकती है."
     },
     {
         "title_tr": "🔮 Günün İstihbarat Falı: Matrisin Çatlağı",
         "title_en": "🔮 Daily Intel Fortune: The Matrix Crack",
+        "title_ar": "🔮 فبركة الاستخبارات اليومية: صدع الماتريكس",
+        "title_hi": "🔮 दैनिक खुफिया भाग्य: मैट्रिक्स क्रैक",
         "desc_tr": "Sistem içindeki rutinleri kırmak için mükemmel bir gün. Bugün karşına çıkacak şifreli bir detay, hayatındaki büyük bir bulmacayı çözmeni sağlayacak.",
-        "desc_en": "An excellent day to break routines within the system. An encrypted detail you encounter today will help you solve a major puzzle in your life."
+        "desc_en": "An excellent day to break routines within the system. An encrypted detail you encounter today will help you solve a major puzzle in your life.",
+        "desc_ar": "يوم ممتاز لكسر الروتين داخل النظام. تفصيل مشفر ستواجهه اليوم سيساعدك على حل لغز كبير.",
+        "desc_hi": "सिस्टम के भीतर रूटीन को तोड़ने का एक शानदार दिन। आज आपके सामने आने वाला एक एन्क्रिप्टेड विवरण एक बड़े पहेली को सुलझाने में मदद करेगा।"
     }
 ]
 
 # ---------------------------------------------------------
-# 3. TARİHTE BUGÜN / GİZLİ OLAYLAR HAVUZU (Mükerrer Korumalı)
+# 3. TARİHTE BUGÜN / GİZLİ OLAYLAR HAVUZU (Çok Dilli)
 # ---------------------------------------------------------
 HISTORY_HUB = [
     {
-        "title_tr": "📜 Tarihte Bugün: Gizli Projelerin Perde Arkası",
-        "desc_tr": "Tarihin bu gününde, hükümetlerin resmi olarak reddettiği ancak yıllar sonra sızdırılan gizli bir teknoloji programı, dünya askeri dengelerini değiştiren testler gerçekleştirdi."
+        "title_tr": "Tarihte Bugün: Gizli Projelerin Perde Arkası",
+        "title_en": "Today in History: Behind the Scenes of Secret Projects",
+        "title_ar": "تاريخ اليوم: كواليس المشاريع السرية",
+        "title_hi": "इतिहास में आज: गुप्त परियोजनाओं के पीछे की कहानी",
+        "desc_tr": "Tarihin bu gününde, hükümetlerin resmi olarak reddettiği ancak yıllar sonra sızdırılan gizli bir teknoloji programı, dünya askeri dengelerini değiştiren testler gerçekleştirdi.",
+        "desc_en": "On this day in history, a classified tech program officially denied by governments but leaked years later conducted tests altering global military balances.",
+        "desc_ar": "في مثل هذا اليوم من التاريخ، أجرى برنامج تقني مصنف سراً اختبارات غيرت التوازنات العسكرية العالمية.",
+        "desc_hi": "इतिहास में आज के दिन, सरकारों द्वारा आधिकारिक रूप से नकारे गए लेकिन बाद में लीक हुए गुप्त तकनीकी कार्यक्रम ने वैश्विक सैन्य संतुलन को बदला."
     },
     {
-        "title_tr": "📜 Tarihte Bugün: Kayıp Arşivlerin Gün Işığına Çıkışı",
-        "desc_tr": "Yıllarca mühürlü kalan uluslararası istihbarat raporları, tarihin bu gününde ilk kez kamuoyuna serbest bırakıldı ve ezber bozan gerçekler gözler önüne serildi."
+        "title_tr": "Tarihte Bugün: Kayıp Arşivlerin Gün Işığına Çıkışı",
+        "title_en": "Today in History: The Emergence of Lost Archives",
+        "title_ar": "تاريخ اليوم: ظهور الأرشيف المفقود",
+        "title_hi": "इतिहास में आज: खोए हुए अभिलेखों का प्रकाश में आना",
+        "desc_tr": "Yıllarca mühürlü kalan uluslararası istihbarat raporları, tarihin bu gününde ilk kez kamuoyuna serbest bırakıldı ve ezber bozan gerçekler gözler önüne serildi.",
+        "desc_en": "International intelligence reports sealed for years were declassified to the public for the first time on this day in history.",
+        "desc_ar": "تم رفع السرية عن تقارير الاستخبارات الدولية المكتومة لسنوات للجمهور لأول مرة في مثل هذا اليوم.",
+        "desc_hi": "वर्षों तक सील की गई अंतर्राष्ट्रीय खुफिया रिपोर्टों को इतिहास में आज के दिन पहली बार जनता के लिए डिक्लासिफाइड किया गया था."
     },
     {
-        "title_tr": "📜 Tarihte Bugün: Yeraltı Tünelleri Sızıntısı",
-        "desc_tr": "Tarihin bu gününde, devletlerin onlarca yıldır haritalardan sildiği devasa yeraltı askeri komplekslerinin varlığı ilk kez resmi belgelerle ifşa edildi."
+        "title_tr": "Tarihte Bugün: Yeraltı Tünelleri Sızıntısı",
+        "title_en": "Today in History: Underground Tunnels Leak",
+        "title_ar": "تاريخ اليوم: تسريب الأنفاق تحت الأرض",
+        "title_hi": "इतिहास में आज: भूमिगत सुरंगों का रिساव",
+        "desc_tr": "Tarihin bu gününde, devletlerin onlarca yıldır haritalardan sildiği devasa yeraltı askeri komplekslerinin varlığı ilk kez resmi belgelerle ifşa edildi.",
+        "desc_en": "On this day, the existence of massive underground military complexes erased from maps for decades was officially exposed.",
+        "desc_ar": "في هذا اليوم، تم كشف وجود مجمعات عسكرية ضخمة تحت الأرض مسحوبة من الخرائط لعقود.",
+        "desc_hi": "आज के दिन, दशकों से नक्शे से मिटाए गए विशाल भूमिगत सैन्य परिसरों के अस्तित्व का आधिकारिक तौर पर खुलासा हुआ।"
     }
 ]
 
 # ---------------------------------------------------------
-# 4. UZAY, SİBER & YERALTI ALARMI HAVUZU (Mükerrer Korumalı)
+# 4. UZAY, SİBER & YERALTI ALARMI HAVUZU (Çok Dilli)
 # ---------------------------------------------------------
 TECH_HUB = [
     {
-        "title_tr": "🛰️ Kozmik İstihbarat & Siber Alarm",
-        "desc_tr": "Derin uzaydan gelen anormal sinyaller ve küresel ağlarda tespit edilen gizemli siber hareketlilik, teknoloji otoritelerini alarm durumuna geçirdi."
+        "title_tr": "Kozmik İstihbarat & Siber Alarm",
+        "title_en": "Cosmic Intelligence & Cyber Alert",
+        "title_ar": "الاستخبارات الكونية والإنذار السيبراني",
+        "title_hi": "कॉस्मिक इंटेलिजेंस और साइबर अलर्ट",
+        "desc_tr": "Derin uzaydan gelen anormal sinyaller ve küresel ağlarda tespit edilen gizemli siber hareketlilik, teknoloji otoritelerini alarm durumuna geçirdi.",
+        "desc_en": "Abnormal signals from deep space and mysterious cyber activity detected in global networks put tech authorities on high alert.",
+        "desc_ar": "الإشارات غير الطبيعية من الفضاء العميق والنشاط السيبراني الغامض وضعت سلطات التكنولوجيا في حالة تأهب قصوى.",
+        "desc_hi": "गहरे अंतरिक्ष से असामान्य संकेत और वैश्विक नेटवर्क में पाई गई रहस्यमयी साइबर गतिविधि ने तकनीकी अधिकारियों को हाई अलर्ट पर कर दिया है।"
     },
     {
-        "title_tr": "👁️ Siber Casusluk ve Offshore Raporu",
-        "desc_tr": "Küresel ölçekte faaliyet gösteren gizli bir hacker grubu, offshore hesaplarda dönen trilyonlarca dolarlık karanlık fon ağını sızdırdı."
+        "title_tr": "Siber Casusluk ve Offshore Raporu",
+        "title_en": "Cyber Espionage and Offshore Report",
+        "title_ar": "التجسس السيبراني وتقرير الأوفشور",
+        "title_hi": "साइबर जासूसी और अपतटीय रिपोर्ट",
+        "desc_tr": "Küresel ölçekte faaliyet gösteren gizli bir hacker grubu, offshore hesaplarda dönen trilyonlarca dolarlık karanlık fon ağını sızdırdı.",
+        "desc_en": "A covert hacker group operating globally leaked a dark fund network of trillions of dollars circulating in offshore accounts.",
+        "desc_ar": "قامت مجموعة تسلل سرية تعمل عالمياً بتسريب شبكة أموال مظلمة تبلغ قيمتها تريليونات الدولارات.",
+        "desc_hi": "वैश्विक स्तर पर काम कर रहे एक गुप्त हैकर समूह ने अपतटीय खातों में घूम रहे खरबों डॉलर के काले धन के नेटवर्क को लीक किया।"
     },
     {
-        "title_tr": "🧠 Zihin Kontrolü ve MK-Ultra Arşivleri",
-        "desc_tr": "Devletlerin geçmişte insan davranışı ve algı yönetimi üzerine yürüttüğü gizli zihin kontrol projelerine ait yeni sansürsüz belgeler gün yüzüne çıktı."
+        "title_tr": "Zihin Kontrolü ve MK-Ultra Arşivleri",
+        "title_en": "Mind Control and MK-Ultra Archives",
+        "title_ar": "أرشيف التحكم بالعقل و MK-Ultra",
+        "title_hi": "माइंड कंट्रोल और एमके-अльтра अभिलेख",
+        "desc_tr": "Devletlerin geçmişte insan davranışı ve algı yönetimi üzerine yürüttüğü gizli zihin kontrol projelerine ait yeni sansürsüz belgeler gün yüzüne çıktı.",
+        "desc_en": "New uncensored documents regarding secret mind control projects conducted by states on human behavior and perception management have emerged.",
+        "desc_ar": "ظهرت وثائق جديدة غير خاضعة للرقابة تتعلق بمشاريع سرية للسيطرة على العقول نفذتها الدول.",
+        "desc_hi": "मानव व्यवहार और धारणा प्रबंधन पर राज्यों द्वारा चलाए गए गुप्तMind Control प्रोजेक्ट्स के नए अनसेंसर्ड दस्तावेज सामने आए हैं।"
     }
 ]
 
@@ -167,11 +215,11 @@ sent_history_history = []
 sent_tech_history = []
 
 # ---------------------------------------------------------
-# GÖREV FONKSİYONLARI (Akıllı Mükerrer Engelleme Mekanizmasıyla)
+# GÖREV FONKSİYONLARI (Tamamen Çok Dilli ve Mükerrer Korumalı)
 # ---------------------------------------------------------
 
 async def post_hub_content(context: ContextTypes.DEFAULT_TYPE):
-    """Saat başı derin istihbarat arşivi paylaşır (Asla mükerrer olmaz)"""
+    """Saat başı derin istihbarat arşivi paylaşır"""
     global sent_intel_history
     
     if len(sent_intel_history) >= len(INTEL_HUB):
@@ -208,12 +256,12 @@ async def post_hub_content(context: ContextTypes.DEFAULT_TYPE):
             parse_mode="HTML",
             reply_markup=reply_markup
         )
-        print("✅ Saat başı istihbarat dosyası başarıyla servis edildi.")
+        print("✅ Çok dilli saat başı istihbarat dosyası servis edildi.")
     except Exception as e:
         print(f"❌ Gönderim hatası: {e}")
 
 async def post_daily_fortune(context: ContextTypes.DEFAULT_TYPE):
-    """Günde 1 defa günün falını gönderir (Mükerrer içermez)"""
+    """Günde 1 defa günün falını çok dilli gönderir"""
     global sent_fortune_history
     
     if len(sent_fortune_history) >= len(FORTUNE_HUB):
@@ -232,23 +280,33 @@ async def post_daily_fortune(context: ContextTypes.DEFAULT_TYPE):
         f"<i>{item['desc_tr']}</i>\n\n"
         f"🇬🇧 <b>{item['title_en']}</b>\n"
         f"<i>{item['desc_en']}</i>\n\n"
+        f"🇸🇦 <b>{item['title_ar']}</b>\n"
+        f"<i>{item['desc_ar']}</i>\n\n"
+        f"🇮🇳 <b>{item['title_hi']}</b>\n"
+        f"<i>{item['desc_hi']}</i>\n\n"
         f"👁️ #DailyFortune #SingularityHub"
     )
     try:
         await context.bot.send_message(chat_id=CHAT_ID, text=caption, parse_mode="HTML")
-        print("🔮 Günün falı servis edildi.")
+        print("🔮 Çok dilli günün falı servis edildi.")
     except Exception as e:
         print(f"❌ Fal gönderim hatası: {e}")
 
 async def post_daily_poll(context: ContextTypes.DEFAULT_TYPE):
-    """Günde 1 defa üyelerin etkileşimi için anket gönderir"""
+    """Günde 1 defa çok dilli interaktif anket gönderir"""
     polls = [
-        ("🧠 SİNGULARİTY ANKETİ: Sizce önümüzdeki 10 yıl içinde yapay zeka insanlığı yönetmeye başlayacak mı?", 
-         ["Kesinlikle Başlayacak", "İnsan Kontrolü Elde Tutacak", "Sistem Çökecek / Kaos Olacak", "Bunu Zaten Yapıyorlar"]),
-        ("🌐 KÜRESEL MERAK: Sizce dünyayı arkadan yöneten gizli bir konsey veya elit ağ var mı?", 
-         ["Kesinlikle Var", "Tamamen Komplo Teorisi", "Sadece Büyük Şirketler Yönetiyor", "Bilmiyorum / Düşünüyorum"]),
-        ("🛸 UZAY VE GERÇEKLER: Sizce dünya dışı akıllı yaşam formları hükümetler tarafından gizleniyor mu?", 
-         ["Evet, Kesinlikle Saklıyorlar", "Hayır, Öyle Bir Şey Yok", "Zaten Aramızdalar", "Emin değilim"])
+        (
+            "🧠 SİNGULARİTY ANKETİ / GLOBAL POLL:\nSizce önümüzdeki 10 yıl içinde yapay zeka insanlığı yönetmeye başlayacak mı?\nWill AI start ruling humanity in the next 10 years?", 
+            ["Kesinlikle / Absolutely", "İnsan Kontrolü / Human Control", "Kaos Olacak / Chaos", "Zaten Yapıyor / Already Does"]
+        ),
+        (
+            "🌐 KÜRESEL MERAK / GLOBAL CURIOSITY:\nSizce dünyayı arkadan yöneten gizli bir konsey veya elit ağ var mı?\nIs there a secret council or elite network ruling the world?", 
+            ["Kesinlikle Var / Definitely Yes", "Komplo / Conspiracy", "Şirketler / Corporations", "Bilmiyorum / Don't Know"]
+        ),
+        (
+            "🛸 UZAY VE GERÇEKLER / SPACE & FACTS:\nSizce dünya dışı akıllı yaşam formları hükümetler tarafından gizleniyor mı?\nAre extraterrestrial life forms being hidden by governments?", 
+            ["Evet, Saklıyorlar / Yes", "Hayır, Yok / No", "Zaten Aramızdalar / Among Us", "Emin değilim / Not Sure"]
+        )
     ]
     poll_data = random.choice(polls)
     try:
@@ -258,12 +316,12 @@ async def post_daily_poll(context: ContextTypes.DEFAULT_TYPE):
             options=poll_data[1],
             is_anonymous=False
         )
-        print("📊 Günlük anket servis edildi.")
+        print("📊 Çok dilli günlük anket servis edildi.")
     except Exception as e:
         print(f"❌ Anket gönderim hatası: {e}")
 
 async def post_history_event(context: ContextTypes.DEFAULT_TYPE):
-    """Günde 1 defa tarihte bugün gizemli olay paylaşır (Mükerrer içermez)"""
+    """Günde 1 defa tarihte bugün gizemli olay paylaşır (Çok Dilli)"""
     global sent_history_history
     
     if len(sent_history_history) >= len(HISTORY_HUB):
@@ -278,18 +336,24 @@ async def post_history_event(context: ContextTypes.DEFAULT_TYPE):
     
     caption = (
         f"📜 <b>SINGULARITY CHRONICLES / TARİHTE BUGÜN</b>\n\n"
+        f"🇬🇧 <b>{item['title_en']}</b>\n"
+        f"<i>{item['desc_en']}</i>\n\n"
         f"🇹🇷 <b>{item['title_tr']}</b>\n"
         f"<i>{item['desc_tr']}</i>\n\n"
+        f"🇸🇦 <b>{item['title_ar']}</b>\n"
+        f"<i>{item['desc_ar']}</i>\n\n"
+        f"🇮🇳 <b>{item['title_hi']}</b>\n"
+        f"<i>{item['desc_hi']}</i>\n\n"
         f"📌 #History #DarkArchives"
     )
     try:
         await context.bot.send_message(chat_id=CHAT_ID, text=caption, parse_mode="HTML")
-        print("📜 Tarih olayı servis edildi.")
+        print("📜 Çok dilli tarih olayı servis edildi.")
     except Exception as e:
         print(f"❌ Tarih gönderim hatası: {e}")
 
 async def post_tech_alarm(context: ContextTypes.DEFAULT_TYPE):
-    """Günde 1 defa uzay, siber ve yeraltı alarm bülteni paylaşır (Mükerrer içermez)"""
+    """Günde 1 defa uzay, siber ve yeraltı alarm bülteni paylaşır (Çok Dilli)"""
     global sent_tech_history
     
     if len(sent_tech_history) >= len(TECH_HUB):
@@ -304,13 +368,19 @@ async def post_tech_alarm(context: ContextTypes.DEFAULT_TYPE):
     
     caption = (
         f"🚨 <b>SINGULARITY TECH & UNDERGROUND ALARM</b>\n\n"
+        f"🇬🇧 <b>{item['title_en']}</b>\n"
+        f"<i>{item['desc_en']}</i>\n\n"
         f"🇹🇷 <b>{item['title_tr']}</b>\n"
         f"<i>{item['desc_tr']}</i>\n\n"
+        f"🇸🇦 <b>{item['title_ar']}</b>\n"
+        f"<i>{item['desc_ar']}</i>\n\n"
+        f"🇮🇳 <b>{item['title_hi']}</b>\n"
+        f"<i>{item['desc_hi']}</i>\n\n"
         f"🛰️ #CyberIntel #Underground #SpaceAnomaly"
     )
     try:
         await context.bot.send_message(chat_id=CHAT_ID, text=caption, parse_mode="HTML")
-        print("🚨 Tech alarm servis edildi.")
+        print("🚨 Çok dilli Tech alarm servis edildi.")
     except Exception as e:
         print(f"❌ Tech alarm gönderim hatası: {e}")
 
@@ -319,7 +389,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🤖 <b>Singularity Hub İstihbarat Üssüne Hoş Geldiniz!</b>\n\n"
         "This channel automatically serves global state secrets, nuclear intelligence, "
         "daily fortunes, interactive polls, underground intel, and breaking news in <b>English, Turkish, Arabic, and Hindi</b>.\n\n"
-        "<i>Sadece gerçekler, sırlar, anlık flaşlar ve küresel gündem.</i>"
+        "<i>Sadece gerçekler, sırlar, anlık flaşlar ve küresel gündem. / Only facts, secrets, and global agenda.</i>"
     )
     await update.message.reply_text(welcome_text, parse_mode="HTML")
 
@@ -330,25 +400,14 @@ def main():
     
     job_queue = app.job_queue
     if job_queue:
-        # 1. Başlangıçta hemen test paylaşımı
         job_queue.run_once(post_hub_content, when=3)
-        
-        # 2. Saat başı derin arşiv paylaşımları (Her 60 dakikada bir)
         job_queue.run_repeating(post_hub_content, interval=POST_INTERVAL_MINUTES * 60, first=60)
-        
-        # 3. Günde 1 kez Günün Falı (Her 24 saatte bir)
         job_queue.run_repeating(post_daily_fortune, interval=86400, first=300)
-        
-        # 4. Günde 1 kez İnteraktif Anket (Her 24 saatte bir)
         job_queue.run_repeating(post_daily_poll, interval=86400, first=600)
-        
-        # 5. Günde 1 kez Tarihte Bugün (Her 24 saatte bir)
         job_queue.run_repeating(post_history_event, interval=86400, first=900)
-        
-        # 6. Günde 1 kez Uzay & Yeraltı Alarmı (Her 24 saatte bir)
         job_queue.run_repeating(post_tech_alarm, interval=86400, first=1200)
     
-    print(f"🚀 Çok dilli Singularity Hub kusursuz ve mükerrer korumalı olarak aktif!")
+    print(f"🚀 Tamamen küresel ve çok dilli Singularity Hub aktif!")
     app.run_polling()
 
 if __name__ == '__main__':
