@@ -1,8 +1,6 @@
 import logging
 import random
 import os
-import threading
-from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -11,19 +9,6 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
-
-# ---------------------------------------------------------
-# RENDER İÇİN MİNİ WEB SUNUCUSU (Keep-Alive)
-# ---------------------------------------------------------
-web_app = Flask('')
-
-@web_app.route('/')
-def home():
-    return "Singularity Hub Bot is active and running!", 200
-
-def run_web():
-    port = int(os.environ.get("PORT", 10000))
-    web_app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
 
 # ---------------------------------------------------------
 # AYARLAR (Singularity Hub - Çok Dilli İstihbarat Üssü)
@@ -146,11 +131,6 @@ def main():
     if job_queue:
         job_queue.run_once(post_hub_content, when=3)
         job_queue.run_repeating(post_hub_content, interval=POST_INTERVAL_MINUTES * 60, first=60)
-    
-    # Flask sunucusunu Telegram polling'den hemen önce başlatıyoruz
-    t = threading.Thread(target=run_web)
-    t.daemon = True
-    t.start()
     
     print(f"🚀 Singularity Hub aktif!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
