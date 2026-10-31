@@ -48,45 +48,19 @@ INTEL_HUB = [
         "desc_hi": "सार्वजनिक कानूनी अभिलेखों से प्राप्त वैश्विक कुलीन नेटवर्क के विवरण का खुलासा करने वाले आधिकारिक अदालत के दस्तावेज.",
         "link": "https://www.documentcloud.org",
         "tag": "StateArchives"
-    }
-]
-
-FORTUNE_HUB = [
+    },
     {
-        "title_tr": "🔮 Günün İstihbarat Falı: Bilinmeyen Frekans",
-        "title_en": "🔮 Daily Intel Fortune: The Unknown Frequency",
-        "title_ar": "🔮 فبركة الاستخبارات اليومية: التردد المجهول",
-        "title_hi": "🔮 दैनिक खुफिया भाग्य: अज्ञात आवृत्ति",
-        "desc_tr": "Bugün küresel ağlarda dönen enerjiler, gizli bir anlaşmanın veya uzun süredir aradığın bir sorunun cevabının önüne çıkacağını gösteriyor.",
-        "desc_en": "The energies circulating in global networks today indicate that a secret agreement or the answer to a long-sought question will cross your path.",
-        "desc_ar": "تشير الطاقات المتداولة في الشبكات العالمية اليوم إلى أن اتفاقاً سرياً أو إجابة على سؤال طال البحث عنه ستعترض طريقك.",
-        "desc_hi": "आज वैश्विक नेटवर्क में घूम रही ऊर्जाएं यह संकेत देती हैं कि एक गुप्त समझौता आपके सामने आएगा."
-    }
-]
-
-HISTORY_HUB = [
-    {
-        "title_tr": "Tarihte Bugün: Gizli Projelerin Perde Arkası",
-        "title_en": "Today in History: Behind the Scenes of Secret Projects",
-        "title_ar": "تاريخ اليوم: كواليس المشاريع السرية",
-        "title_hi": "इतिहास में आज: गुप्त परियोजनाओं के पीछे की कहानी",
-        "desc_tr": "Tarihin bu gününde, hükümetlerin resmi olarak reddettiği ancak yıllar sonra sızdırılan gizli bir teknoloji programı testler gerçekleştirdi.",
-        "desc_en": "On this day in history, a classified tech program officially denied by governments but leaked years later conducted tests.",
-        "desc_ar": "في مثل هذا اليوم من التاريخ، أجرى برنامج تقني مصنف سراً اختبارات غيرت التوازنات العسكرية العالمية.",
-        "desc_hi": "इतिहास में आज के दिन, सरकारों द्वारा आधिकारिक रूप से नकारे गए गुप्त तकनीकी कार्यक्रम ने परीक्षण किए।"
-    }
-]
-
-TECH_HUB = [
-    {
-        "title_tr": "Kozmik İstihbarat & Siber Alarm",
-        "title_en": "Cosmic Intelligence & Cyber Alert",
-        "title_ar": "الاستخبارات الكونية والإنذار السيبراني",
-        "title_hi": "कॉस्मिक इंटेलिजेंस और साइबर अलर्ट",
-        "desc_tr": "Derin uzaydan gelen anormal sinyaller ve küresel ağlarda tespit edilen gizemli siber hareketlilik alarm durumuna geçirdi.",
-        "desc_en": "Abnormal signals from deep space and mysterious cyber activity detected in global networks put tech authorities on high alert.",
-        "desc_ar": "الإشارات غير الطبيعية من الفضاء العميق والنشاط السيبراني الغامض وضعت سلطات التكنولوجيا في حالة تأهب.",
-        "desc_hi": "गहरे अंतरिक्ष से असामान्य संकेत और वैश्विक नेटवर्क में पाई गई रहस्यमयी साइबर गतिविधि ने अलर्ट किया।"
+        "type": "☢️ NUCLEAR SECRETS / NÜLEER VE GİZLİ SİLAHLAR",
+        "title_tr": "Atom Bombası Tarihinin Bilinmeyen Karanlık Yüzü ve Gizli Projeler",
+        "title_en": "The Unknown Dark Side of Nuclear History and Secret Projects",
+        "title_ar": "الجانب المظلم المجهول من التاريخ النووي والمشاريع السرية",
+        "title_hi": "परमाणु इतिहास का अज्ञात अंधा पक्ष और गुप्त परियोजनाएं",
+        "desc_tr": "Soğuk savaş döneminde nükleer silahların geliştirilmesi aşamasında üstü örtbas edilen kazalar, kayıp nükleer başlıklar ve devletlerin gizli silah programları.",
+        "desc_en": "Covered-up accidents, lost nuclear warheads, and classified weapons programs during the height of Cold War atomic development.",
+        "desc_ar": "حوادث تم التستر عليها، الرؤوس الحربية النووية المفقودة، وبرامج الأسلحة المصنفة سرية خلال ذروة تطوير الذرة في الحرب الباردة.",
+        "desc_hi": "शीत युद्ध के परमाणु विकास के दौरान छुपाए गए हादसे, खोए हुए परमाणु हथियार और वर्गीकृत गुप्त हथियार कार्यक्रम.",
+        "link": "https://nsarchive.gwu.edu/",
+        "tag": "NuclearSecrets"
     }
 ]
 
@@ -115,6 +89,7 @@ async def post_hub_content(context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     try:
         await context.bot.send_message(chat_id=CHAT_ID, text=caption, parse_mode="HTML", reply_markup=reply_markup)
+        print("✅ İstihbarat başarıyla kanala gönderildi!")
     except Exception as e:
         print(f"❌ Gönderim hatası: {e}")
 
@@ -131,10 +106,11 @@ def main():
     
     job_queue = app.job_queue
     if job_queue:
-        job_queue.run_once(post_hub_content, when=3)
+        # Bot ayağa kalktıktan 5 saniye sonra ilk postu atar, sonra her 60 dakikada bir tekrarlar
+        job_queue.run_once(post_hub_content, when=5)
         job_queue.run_repeating(post_hub_content, interval=POST_INTERVAL_MINUTES * 60, first=60)
     
-    # Flask sunucusunu arka planda başlatıyoruz ki Render health-check isteğine anında cevap versin
+    # Flask sunucusunu arka planda başlatıyoruz
     t = threading.Thread(target=run_web)
     t.daemon = True
     t.start()
