@@ -178,4 +178,49 @@ def background_scheduler():
                     )
                     keyboard = [[InlineKeyboardButton("🔗 Gizli Dosyayı İncele / Source", url=item['link'])]]
                     import asyncio
-                    asyncio.run(bot.send_photo(chat_id=CHAT_ID, photo=item['image'], caption=caption, parse_mode="HTML", reply
+                    asyncio.run(bot.send_photo(chat_id=CHAT_ID, photo=item['image'], caption=caption, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(keyboard)))
+                else:
+                    poll = random.choice(POLL_POOL)
+                    import asyncio
+                    asyncio.run(bot.send_poll(chat_id=CHAT_ID, question=poll["question"], options=poll["options"], is_anonymous=False))
+        except Exception as ex:
+            print(f"Döngü hatası: {ex}")
+            
+        time.sleep(30)
+
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🤖 <b>Ultra-Classified Station Aktif!</b> Gizli uydular ve yeraltı arşivleri devrede.", parse_mode="HTML")
+
+async def post_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    bot = context.bot
+    item = random.choice(ULTRA_CLASSIFIED_HUB)
+    caption = (
+        f"🌐 <b>ULTRA-CLASSIFIED MANUAL DROP</b>\n\n"
+        f"🇬🇧 {item['title_en']}\n"
+        f"🇹🇷 {item['title_tr']}\n"
+        f"🇩🇪 {item['title_de']}\n"
+        f"🇪🇸 {item['title_es']}\n"
+        f"🇮🇹 {item['title_it']}\n"
+        f"🇮🇳 {item['title_hi']}"
+    )
+    await bot.send_photo(chat_id=CHAT_ID, photo=item['image'], caption=caption, parse_mode="HTML")
+    await update.message.reply_text("🚀 Kimsenin bilmediği gizli dosyalar manuel olarak çakıldı usta!")
+
+def main():
+    app = Application.builder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("start", start_command))
+    app.add_handler(CommandHandler("post", post_command))
+    
+    t_web = threading.Thread(target=run_web)
+    t_web.daemon = True
+    t_web.start()
+    
+    t_sched = threading.Thread(target=background_scheduler)
+    t_sched.daemon = True
+    t_sched.start()
+    
+    print(f"🚀 Ultra-Classified Station devrede!")
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
+
+if __name__ == '__main__':
+    main()
