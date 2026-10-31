@@ -1,5 +1,7 @@
 import logging
 import random
+import threading
+from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -8,6 +10,18 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
+
+# ---------------------------------------------------------
+# RENDER İÇİN MİNİ WEB SUNUCUSU (Kapanmayı Önleyen Sihirli Dokunuş)
+# ---------------------------------------------------------
+web_app = Flask('')
+
+@web_app.route('/')
+def home():
+    return "Singularity Hub Bot is active and running!"
+
+def run_web():
+    web_app.run(host='0.0.0.0', port=10000)
 
 # ---------------------------------------------------------
 # AYARLAR (Singularity Hub - Çok Dilli İstihbarat Üssü)
@@ -164,7 +178,7 @@ HISTORY_HUB = [
         "title_tr": "Tarihte Bugün: Yeraltı Tünelleri Sızıntısı",
         "title_en": "Today in History: Underground Tunnels Leak",
         "title_ar": "تاريخ اليوم: تسريب الأنفاق تحت الأرض",
-        "title_hi": "इतिहास में आज: भूमिगत सुरंगों का रिساव",
+        "title_hi": "इतिहास में आज: भूमिगत सुरंगों का रिसाव",
         "desc_tr": "Tarihin bu gününde, devletlerin onlarca yıldır haritalardan sildiği devasa yeraltı askeri komplekslerinin varlığı ilk kez resmi belgelerle ifşa edildi.",
         "desc_en": "On this day, the existence of massive underground military complexes erased from maps for decades was officially exposed.",
         "desc_ar": "في هذا اليوم، تم كشف وجود مجمعات عسكرية ضخمة تحت الأرض مسحوبة من الخرائط لعقود.",
@@ -208,27 +222,19 @@ TECH_HUB = [
     }
 ]
 
-# Mükerrer (Tekrar) Paylaşımı Tamamen Önleyen Geçmiş Takip Listeleri
+# Geçmiş Takip Listeleri
 sent_intel_history = []
 sent_fortune_history = []
 sent_history_history = []
 sent_tech_history = []
 
-# ---------------------------------------------------------
-# GÖREV FONKSİYONLARI (Tamamen Çok Dilli ve Mükerrer Korumalı)
-# ---------------------------------------------------------
-
 async def post_hub_content(context: ContextTypes.DEFAULT_TYPE):
-    """Saat başı derin istihbarat arşivi paylaşır"""
     global sent_intel_history
-    
     if len(sent_intel_history) >= len(INTEL_HUB):
         sent_intel_history = []
-        
     available_items = [item for item in INTEL_HUB if item not in sent_intel_history]
     if not available_items:
         available_items = INTEL_HUB
-        
     item = random.choice(available_items)
     sent_intel_history.append(item)
     
@@ -245,142 +251,91 @@ async def post_hub_content(context: ContextTypes.DEFAULT_TYPE):
         f"🇮🇳 <i>{item['desc_hi']}</i>\n\n"
         f"📌 #{item['tag']}"
     )
-    
     keyboard = [[InlineKeyboardButton("🔗 Arşivi İncele / Source / المصدر / स्रोत", url=item['link'])]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
     try:
-        await context.bot.send_message(
-            chat_id=CHAT_ID,
-            text=caption,
-            parse_mode="HTML",
-            reply_markup=reply_markup
-        )
-        print("✅ Çok dilli saat başı istihbarat dosyası servis edildi.")
+        await context.bot.send_message(chat_id=CHAT_ID, text=caption, parse_mode="HTML", reply_markup=reply_markup)
     except Exception as e:
         print(f"❌ Gönderim hatası: {e}")
 
 async def post_daily_fortune(context: ContextTypes.DEFAULT_TYPE):
-    """Günde 1 defa günün falını çok dilli gönderir"""
     global sent_fortune_history
-    
     if len(sent_fortune_history) >= len(FORTUNE_HUB):
         sent_fortune_history = []
-        
     available_items = [item for item in FORTUNE_HUB if item not in sent_fortune_history]
     if not available_items:
         available_items = FORTUNE_HUB
-        
     item = random.choice(available_items)
     sent_fortune_history.append(item)
     
     caption = (
         f"🔮 <b>SINGULARITY DAILY FORTUNE / GÜNÜN FALI</b>\n\n"
-        f"🇹🇷 <b>{item['title_tr']}</b>\n"
-        f"<i>{item['desc_tr']}</i>\n\n"
-        f"🇬🇧 <b>{item['title_en']}</b>\n"
-        f"<i>{item['desc_en']}</i>\n\n"
-        f"🇸🇦 <b>{item['title_ar']}</b>\n"
-        f"<i>{item['desc_ar']}</i>\n\n"
-        f"🇮🇳 <b>{item['title_hi']}</b>\n"
-        f"<i>{item['desc_hi']}</i>\n\n"
+        f"🇹🇷 <b>{item['title_tr']}</b>\n<i>{item['desc_tr']}</i>\n\n"
+        f"🇬🇧 <b>{item['title_en']}</b>\n<i>{item['desc_en']}</i>\n\n"
+        f"🇸🇦 <b>{item['title_ar']}</b>\n<i>{item['desc_ar']}</i>\n\n"
+        f"🇮🇳 <b>{item['title_hi']}</b>\n<i>{item['desc_hi']}</i>\n\n"
         f"👁️ #DailyFortune #SingularityHub"
     )
     try:
         await context.bot.send_message(chat_id=CHAT_ID, text=caption, parse_mode="HTML")
-        print("🔮 Çok dilli günün falı servis edildi.")
     except Exception as e:
         print(f"❌ Fal gönderim hatası: {e}")
 
 async def post_daily_poll(context: ContextTypes.DEFAULT_TYPE):
-    """Günde 1 defa çok dilli interaktif anket gönderir"""
     polls = [
-        (
-            "🧠 SİNGULARİTY ANKETİ / GLOBAL POLL:\nSizce önümüzdeki 10 yıl içinde yapay zeka insanlığı yönetmeye başlayacak mı?\nWill AI start ruling humanity in the next 10 years?", 
-            ["Kesinlikle / Absolutely", "İnsan Kontrolü / Human Control", "Kaos Olacak / Chaos", "Zaten Yapıyor / Already Does"]
-        ),
-        (
-            "🌐 KÜRESEL MERAK / GLOBAL CURIOSITY:\nSizce dünyayı arkadan yöneten gizli bir konsey veya elit ağ var mı?\nIs there a secret council or elite network ruling the world?", 
-            ["Kesinlikle Var / Definitely Yes", "Komplo / Conspiracy", "Şirketler / Corporations", "Bilmiyorum / Don't Know"]
-        ),
-        (
-            "🛸 UZAY VE GERÇEKLER / SPACE & FACTS:\nSizce dünya dışı akıllı yaşam formları hükümetler tarafından gizleniyor mı?\nAre extraterrestrial life forms being hidden by governments?", 
-            ["Evet, Saklıyorlar / Yes", "Hayır, Yok / No", "Zaten Aramızdalar / Among Us", "Emin değilim / Not Sure"]
-        )
+        ("🧠 SİNGULARİTY ANKETİ / GLOBAL POLL:\nSizce önümüzdeki 10 yıl içinde yapay zeka insanlığı yönetmeye başlayacak mı?\nWill AI start ruling humanity in the next 10 years?", ["Kesinlikle / Absolutely", "İnsan Kontrolü / Human Control", "Kaos Olacak / Chaos", "Zaten Yapıyor / Already Does"]),
+        ("🌐 KÜRESEL MERAK / GLOBAL CURIOSITY:\nSizce dünyayı arkadan yöneten gizli bir konsey veya elit ağ var mı?\nIs there a secret council or elite network ruling the world?", ["Kesinlikle Var / Definitely Yes", "Komplo / Conspiracy", "Şirketler / Corporations", "Bilmiyorum / Don't Know"]),
+        ("🛸 UZAY VE GERÇEKLER / SPACE & FACTS:\nSizce dünya dışı akıllı yaşam formları hükümetler tarafından gizleniyor mı?\nAre extraterrestrial life forms being hidden by governments?", ["Evet, Saklıyorlar / Yes", "Hayır, Yok / No", "Zaten Aramızdalar / Among Us", "Emin değilim / Not Sure"])
     ]
     poll_data = random.choice(polls)
     try:
-        await context.bot.send_poll(
-            chat_id=CHAT_ID,
-            question=poll_data[0],
-            options=poll_data[1],
-            is_anonymous=False
-        )
-        print("📊 Çok dilli günlük anket servis edildi.")
+        await context.bot.send_poll(chat_id=CHAT_ID, question=poll_data[0], options=poll_data[1], is_anonymous=False)
     except Exception as e:
         print(f"❌ Anket gönderim hatası: {e}")
 
 async def post_history_event(context: ContextTypes.DEFAULT_TYPE):
-    """Günde 1 defa tarihte bugün gizemli olay paylaşır (Çok Dilli)"""
     global sent_history_history
-    
     if len(sent_history_history) >= len(HISTORY_HUB):
         sent_history_history = []
-        
     available_items = [item for item in HISTORY_HUB if item not in sent_history_history]
     if not available_items:
         available_items = HISTORY_HUB
-        
     item = random.choice(available_items)
     sent_history_history.append(item)
     
     caption = (
         f"📜 <b>SINGULARITY CHRONICLES / TARİHTE BUGÜN</b>\n\n"
-        f"🇬🇧 <b>{item['title_en']}</b>\n"
-        f"<i>{item['desc_en']}</i>\n\n"
-        f"🇹🇷 <b>{item['title_tr']}</b>\n"
-        f"<i>{item['desc_tr']}</i>\n\n"
-        f"🇸🇦 <b>{item['title_ar']}</b>\n"
-        f"<i>{item['desc_ar']}</i>\n\n"
-        f"🇮🇳 <b>{item['title_hi']}</b>\n"
-        f"<i>{item['desc_hi']}</i>\n\n"
+        f"🇬🇧 <b>{item['title_en']}</b>\n<i>{item['desc_en']}</i>\n\n"
+        f"🇹🇷 <b>{item['title_tr']}</b>\n<i>{item['desc_tr']}</i>\n\n"
+        f"🇸🇦 <b>{item['title_ar']}</b>\n<i>{item['desc_ar']}</i>\n\n"
+        f"🇮🇳 <b>{item['title_hi']}</b>\n<i>{item['desc_hi']}</i>\n\n"
         f"📌 #History #DarkArchives"
     )
     try:
         await context.bot.send_message(chat_id=CHAT_ID, text=caption, parse_mode="HTML")
-        print("📜 Çok dilli tarih olayı servis edildi.")
     except Exception as e:
         print(f"❌ Tarih gönderim hatası: {e}")
 
 async def post_tech_alarm(context: ContextTypes.DEFAULT_TYPE):
-    """Günde 1 defa uzay, siber ve yeraltı alarm bülteni paylaşır (Çok Dilli)"""
     global sent_tech_history
-    
     if len(sent_tech_history) >= len(TECH_HUB):
         sent_tech_history = []
-        
     available_items = [item for item in TECH_HUB if item not in sent_tech_history]
     if not available_items:
         available_items = TECH_HUB
-        
     item = random.choice(available_items)
     sent_tech_history.append(item)
     
     caption = (
         f"🚨 <b>SINGULARITY TECH & UNDERGROUND ALARM</b>\n\n"
-        f"🇬🇧 <b>{item['title_en']}</b>\n"
-        f"<i>{item['desc_en']}</i>\n\n"
-        f"🇹🇷 <b>{item['title_tr']}</b>\n"
-        f"<i>{item['desc_tr']}</i>\n\n"
-        f"🇸🇦 <b>{item['title_ar']}</b>\n"
-        f"<i>{item['desc_ar']}</i>\n\n"
-        f"🇮🇳 <b>{item['title_hi']}</b>\n"
-        f"<i>{item['desc_hi']}</i>\n\n"
+        f"🇬🇧 <b>{item['title_en']}</b>\n<i>{item['desc_en']}</i>\n\n"
+        f"🇹🇷 <b>{item['title_tr']}</b>\n<i>{item['desc_tr']}</i>\n\n"
+        f"🇸🇦 <b>{item['title_ar']}</b>\n<i>{item['desc_ar']}</i>\n\n"
+        f"🇮🇳 <b>{item['title_hi']}</b>\n<i>{item['desc_hi']}</i>\n\n"
         f"🛰️ #CyberIntel #Underground #SpaceAnomaly"
     )
     try:
         await context.bot.send_message(chat_id=CHAT_ID, text=caption, parse_mode="HTML")
-        print("🚨 Çok dilli Tech alarm servis edildi.")
     except Exception as e:
         print(f"❌ Tech alarm gönderim hatası: {e}")
 
@@ -394,6 +349,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(welcome_text, parse_mode="HTML")
 
 def main():
+    # Web sunucusunu arka planda (ayrı bir kolda) başlatıyoruz
+    t = threading.Thread(target=run_web)
+    t.start()
+    
     app = Application.builder().token(BOT_TOKEN).build()
     
     app.add_handler(CommandHandler("start", start_command))
