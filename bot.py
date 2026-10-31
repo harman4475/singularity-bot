@@ -119,13 +119,22 @@ def main():
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("post", post_command))
     
-    job_queue = app.job_queue
-    if job_queue:
-        job_queue.run_repeating(lambda ctx: send_aerospace_post(ctx), interval=POST_INTERVAL_MINUTES * 60, first=10)
-    
+    # Flask sunucusunu arka planda başlatıyoruz
     t = threading.Thread(target=run_web)
     t.daemon = True
     t.start()
+    
+    # Job Queue'yu güvenli başlatma bloğu
+    async def post_init(application: Application):
+        job_queue = application.job_queue
+        if job_queue:
+            # Bot ayağa kalktıktan 5 saniye sonra ilk otomatik postu atar
+            job_queue.run_once(send_aerospace_post, when=5)
+            # Sonrasında her 30 dakikada bir tekrarlar
+            job_queue.run_repeating(send_aerospace_post, interval=POST_INTERVAL_MINUTES * 60, first=30 * 60)
+            print("🕒 Otomatik zamanlayıcı (Job Queue) başarıyla devreye sokuldu!")
+
+    app.post_init = post_init
     
     print(f"🚀 Aerospace & Secret Weapons Bot aktif!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
