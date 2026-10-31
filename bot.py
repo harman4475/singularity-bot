@@ -106,7 +106,6 @@ def check_live_news_and_intel(bot):
                                 f"🏷️ <code>REAL-TIME FEED ALERT</code>\n\n"
                                 f"🚨 <b>{title}</b>\n\n"
                                 f"🇹🇷 <i>[Anlık Ajans Verisi Yakalandı]</i>\n"
-                                f"🔗 <b>YouTube Stratejik Analiz Yakında</b>\n"
                                 f"📌 #BreakingNews #OSINT #SingularityHub"
                             )
                             keyboard = [[InlineKeyboardButton("🔗 Canlı Kaynak", url=link)]]
@@ -159,7 +158,7 @@ def background_scheduler():
         time.sleep(30)
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🤖 <b>Ultimate OSINT Bot Aktif!</b> Hata giderildi, sistem stabil.", parse_mode="HTML")
+    await update.message.reply_text("🤖 <b>Ultimate OSINT Bot Aktif!</b> Saf istihbarat ve son dakika akışı devrede.", parse_mode="HTML")
 
 async def post_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot = context.bot
@@ -181,7 +180,7 @@ def main():
     t_sched.daemon = True
     t_sched.start()
     
-    print(f"🚀 Hatasız Ultimate OSINT Bot devrede!")
+    print(f"🚀 Saf OSINT Bot devrede!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
