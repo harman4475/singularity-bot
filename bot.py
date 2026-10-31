@@ -1,6 +1,8 @@
 import logging
 import random
 import os
+import threading
+from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -9,6 +11,19 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
+
+# ---------------------------------------------------------
+# RENDER İÇİN MİNİ WEB SUNUCUSU (Keep-Alive & Health Check)
+# ---------------------------------------------------------
+web_app = Flask('')
+
+@web_app.route('/')
+def home():
+    return "Singularity Hub Bot is active and running!", 200
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    web_app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
 
 # ---------------------------------------------------------
 # AYARLAR (Singularity Hub - Çok Dilli İstihbarat Üssü)
@@ -33,19 +48,6 @@ INTEL_HUB = [
         "desc_hi": "सार्वजनिक कानूनी अभिलेखों से प्राप्त वैश्विक कुलीन नेटवर्क के विवरण का खुलासा करने वाले आधिकारिक अदालत के दस्तावेज.",
         "link": "https://www.documentcloud.org",
         "tag": "StateArchives"
-    },
-    {
-        "type": "☢️ NUCLEAR SECRETS / NÜLEER VE GİZLİ SİLAHLAR",
-        "title_tr": "Atom Bombası Tarihinin Bilinmeyen Karanlık Yüzü ve Gizli Projeler",
-        "title_en": "The Unknown Dark Side of Nuclear History and Secret Projects",
-        "title_ar": "الجانب المظلم المجهول من التاريخ النووي والمشاريع السرية",
-        "title_hi": "परमाणु इतिहास का अज्ञात अंधा पक्ष और गुप्त परियोजनाएं",
-        "desc_tr": "Soğuk savaş döneminde nükleer silahların geliştirilmesi aşamasında üstü örtbas edilen kazalar, kayıp nükleer başlıklar ve devletlerin gizli silah programları.",
-        "desc_en": "Covered-up accidents, lost nuclear warheads, and classified weapons programs during the height of Cold War atomic development.",
-        "desc_ar": "حوادث تم التستر عليها، الرؤوس الحربية النووية المفقودة، وبرامج الأسلحة المصنفة سرية خلال ذروة تطوير الذرة في الحرب الباردة.",
-        "desc_hi": "शीत युद्ध के परमाणु विकास के दौरान छुपाए गए हादसे, खोए हुए परमाणु हथियार और वर्गीकृत गुप्त हथियार कार्यक्रम.",
-        "link": "https://nsarchive.gwu.edu/",
-        "tag": "NuclearSecrets"
     }
 ]
 
@@ -131,6 +133,11 @@ def main():
     if job_queue:
         job_queue.run_once(post_hub_content, when=3)
         job_queue.run_repeating(post_hub_content, interval=POST_INTERVAL_MINUTES * 60, first=60)
+    
+    # Flask sunucusunu arka planda başlatıyoruz ki Render health-check isteğine anında cevap versin
+    t = threading.Thread(target=run_web)
+    t.daemon = True
+    t.start()
     
     print(f"🚀 Singularity Hub aktif!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
