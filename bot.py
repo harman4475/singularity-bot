@@ -1,8 +1,6 @@
 import logging
 import random
-import threading
 import os
-from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -13,24 +11,11 @@ logging.basicConfig(
 )
 
 # ---------------------------------------------------------
-# RENDER İÇİN MİNİ WEB SUNUCUSU (Dinamik Port ve Timeout Önleyici)
-# ---------------------------------------------------------
-web_app = Flask('')
-
-@web_app.route('/')
-def home():
-    return "Singularity Hub Bot is active and running!", 200
-
-def run_web():
-    port = int(os.environ.get("PORT", 10000))
-    web_app.run(host='0.0.0.0', port=port)
-
-# ---------------------------------------------------------
 # AYARLAR (Singularity Hub - Çok Dilli İstihbarat Üssü)
 # ---------------------------------------------------------
 BOT_TOKEN = "9068851091:AAFFpGSBNjJa3MlhtzeRiA3iKZ8aJ5ETWxE"
 CHAT_ID = "-1004449764057"
-POST_INTERVAL_MINUTES = 60  # Saat başı derin arşiv paylaşımı
+POST_INTERVAL_MINUTES = 60
 
 # ---------------------------------------------------------
 # 1. ÇOK DİLLİ DERİN İSTİHBARAT VE SIR DOSYALARI HAVUZU
@@ -61,61 +46,94 @@ INTEL_HUB = [
         "desc_hi": "शीत युद्ध के परमाणु विकास के दौरान छुपाए गए हादसे, खोए हुए परमाणु हथियार और वर्गीकृत गुप्त हथियार कार्यक्रम.",
         "link": "https://nsarchive.gwu.edu/",
         "tag": "NuclearSecrets"
-    },
-    {
-        "type": "🇨🇳 ASIAN INTELLIGENCE / ÇİN VE KUZEY KORE SIRLARI",
-        "title_tr": "Pekin ve Pyongyang'ın Gizli Arşivlerinden Sızan Küresel Hamleler",
-        "title_en": "Leaked Global Moves from Beijing and Pyongyang's Secret Archives",
-        "title_ar": "تحركات عالمية مسربة من الأرشيف السري لبكين وبيونغ يانغ",
-        "title_hi": "बीजिंग और प्योंगयांग के गुप्त अभिलेखों से लीक हुए वैश्विक कदम",
-        "desc_tr": "Doğu blokunun en kapalı kutularından sızdırılan, küresel ekonomik ve askeri dengeleri altüst eden stratejik sırlar ve yeraltı projeleri.",
-        "desc_en": "Strategic secrets and underground projects leaked from the closed loops of Eastern bloc intelligence, altering global economic and military balances.",
-        "desc_ar": "أسرار استراتيجية ومشاريع تحت الأرض مسربة من الحلقات المغلقة لاستخبارات الكتلة الشرقية، مما أدى إلى تغيير التوازنات الاقتصادية والعسكرية.",
-        "desc_hi": "पूर्वी ब्लॉक के गुप्त इंटेलिजेंस से लीक हुए रणनीतिक रहस्य जो वैश्विक आर्थिक और सैन्य संतुलन को बदलते हैं.",
-        "link": "https://www.wilsoncenter.org/program/cold-war-international-history-project",
-        "tag": "AsianIntel"
-    },
-    {
-        "type": "👁️ DEEP WEB REALITIES / DEEP WEB'İN GERÇEK YÜZÜ",
-        "title_tr": "Deep Web Aslında Niçin Kuruldu? İstihbarat Amaçlı Gizli Ağlar",
-        "title_en": "Why Deep Web Was Actually Created: Intelligence Purpose Networks",
-        "title_ar": "لماذا تم إنشاؤه حقاً: شبكات الاستخبارات السرية في الويب العميقة",
-        "title_hi": "डीप वेब वास्तव में क्यों बनाया गया था: खुफिया प्रयोजन नेटवर्क",
-        "desc_tr": "Popüler kültürün aksine, karanlık ağların asıl kuruluş amacının askeri istihbarat gizliliği, hükümet haberleşmesi ve sansür karşıtı veri transferi olması.",
-        "desc_en": "Contrary to popular culture, the true origin of dark networks built for military intelligence secrecy, government communications, and secure data routing.",
-        "desc_ar": "خلافاً للثقافة الشعبية، فإن الأصل الحقيقي للشبكات المظلمة تم بناؤه لأغراض سرية الاستخبارات العسكرية والاتصالات الحكومية.",
-        "desc_hi": "लोकप्रिय संस्कृति के विपरीत, डार्क नेटवर्क का असली उद्देश्य सैन्य खुफिया गोपनीयता और सरकारी संचार था.",
-        "link": "https://en.wikipedia.org/wiki/Deep_web",
-        "tag": "DeepWebTruth"
-    },
-    {
-        "type": "🤖 AI FUTURE & US PRESS / YAPAY ZEKA VE AMERİKAN BASINI",
-        "title_tr": "ABD Basınından Sızanlar: Yapay Zeka Modellerinin Kontrolden Çıktığı Anlar",
-        "title_en": "US Press Reports: When AI Models Crossed Uncharted Ethical Lines",
-        "title_ar": "تقارير الصحافة الأمريكية: عندما تجاوزت نماذج الذكاء الاصطناعي الخطوط الأخلاقية",
-        "title_hi": "अमेरिकी प्रेस रिपोर्ट: जब एआई मॉडल ने अनकही नैतिक सीमाएं पार कीं",
-        "desc_tr": "ABD'nin önde gelen teknoloji yayınlarında ve akademik makalelerinde tartışılan, yapay zeka sistemlerinin insan denetimini aşma girişimleri ve gizli protokolleri.",
-        "desc_en": "Discussions from leading US tech publications and academic papers regarding AI neural networks bypassing human oversight protocols.",
-        "desc_ar": "مناقشات من منشورات التكنولوجيا الأمريكية الرائدة والأوراق الأكاديمية حول تجاوز شبكات الذكاء الاصطناعي لبروتوكولات الرقابة البشرية.",
-        "desc_hi": "मानव निरीक्षण प्रोटोकॉल को दरकिनार करने वाले एआई तंत्र के बारे में अग्रणी अमेरिकी तकनीकी प्रकाशनों की चर्चाएँ.",
-        "link": "https://www.technologyreview.com/",
-        "tag": "AIMystery"
-    },
-    {
-        "type": "🗺️ GLOBAL INTELLIGENCE / CIA FOIA ARŞİVLERİ",
-        "title_tr": "CIA Bilgi Özgürlüğü Yasası (FOIA) Kapsamında Serbest Bırakılan Gizli Dosyalar",
-        "title_en": "CIA Freedom of Information Act (FOIA) Declassified Vault",
-        "title_ar": "قبو وكالة المخابرات المركزية الأمريكية للوثائق السرية (FOIA)",
-        "title_hi": "सीआईए फ्रीडम ऑफ इंफॉर्मेशन एक्ट (FOIA) डिक्लासिफाइड वॉल्ट",
-        "desc_tr": "ABD istihbaratının gizliliğini kaldırarak elektronik okuma odasına yüklediği, tarihin akışını değiştiren zihin kontrol ve casusluk projeleri.",
-        "desc_en": "The official CIA Freedom of Information Act electronic reading room featuring declassified historical intelligence reports and psychological operations.",
-        "desc_ar": "غرفة القراءة الإلكترونية الرسمية لقانون حرية المعلومات التابع لوكالة المخابرات المركزية والتي تضم تقارير استخباراتية تاريخية سرية.",
-        "desc_hi": "सीआईए का आधिकारिक इलेक्ट्रॉनिक रीडिंग रूम जिसमें डिक्लासिफाइड ऐतिहासिक खुफिया रिपोर्ट शामिल हैं.",
-        "link": "https://www.cia.gov/readingroom/",
-        "tag": "StateSecrets"
     }
 ]
 
-# ---------------------------------------------------------
-# 2. GÜNÜN GİZEMLİ FALI HAVUZU (Çok Dilli)
-# ------------------------------------------------
+FORTUNE_HUB = [
+    {
+        "title_tr": "🔮 Günün İstihbarat Falı: Bilinmeyen Frekans",
+        "title_en": "🔮 Daily Intel Fortune: The Unknown Frequency",
+        "title_ar": "🔮 فبركة الاستخبارات اليومية: التردد المجهول",
+        "title_hi": "🔮 दैनिक खुफिया भाग्य: अज्ञात आवृत्ति",
+        "desc_tr": "Bugün küresel ağlarda dönen enerjiler, gizli bir anlaşmanın veya uzun süredir aradığın bir sorunun cevabının önüne çıkacağını gösteriyor.",
+        "desc_en": "The energies circulating in global networks today indicate that a secret agreement or the answer to a long-sought question will cross your path.",
+        "desc_ar": "تشير الطاقات المتداولة في الشبكات العالمية اليوم إلى أن اتفاقاً سرياً أو إجابة على سؤال طال البحث عنه ستعترض طريقك.",
+        "desc_hi": "आज वैश्विक नेटवर्क में घूम रही ऊर्जाएं यह संकेत देती हैं कि एक गुप्त समझौता आपके सामने आएगा."
+    }
+]
+
+HISTORY_HUB = [
+    {
+        "title_tr": "Tarihte Bugün: Gizli Projelerin Perde Arkası",
+        "title_en": "Today in History: Behind the Scenes of Secret Projects",
+        "title_ar": "تاريخ اليوم: كواليس المشاريع السرية",
+        "title_hi": "इतिहास में आज: गुप्त परियोजनाओं के पीछे की कहानी",
+        "desc_tr": "Tarihin bu gününde, hükümetlerin resmi olarak reddettiği ancak yıllar sonra sızdırılan gizli bir teknoloji programı testler gerçekleştirdi.",
+        "desc_en": "On this day in history, a classified tech program officially denied by governments but leaked years later conducted tests.",
+        "desc_ar": "في مثل هذا اليوم من التاريخ، أجرى برنامج تقني مصنف سراً اختبارات غيرت التوازنات العسكرية العالمية.",
+        "desc_hi": "इतिहास में आज के दिन, सरकारों द्वारा आधिकारिक रूप से नकारे गए गुप्त तकनीकी कार्यक्रम ने परीक्षण किए।"
+    }
+]
+
+TECH_HUB = [
+    {
+        "title_tr": "Kozmik İstihbarat & Siber Alarm",
+        "title_en": "Cosmic Intelligence & Cyber Alert",
+        "title_ar": "الاستخبارات الكونية والإنذار السيبراني",
+        "title_hi": "कॉस्मिक इंटेलिजेंस और साइबर अलर्ट",
+        "desc_tr": "Derin uzaydan gelen anormal sinyaller ve küresel ağlarda tespit edilen gizemli siber hareketlilik alarm durumuna geçirdi.",
+        "desc_en": "Abnormal signals from deep space and mysterious cyber activity detected in global networks put tech authorities on high alert.",
+        "desc_ar": "الإشارات غير الطبيعية من الفضاء العميق والنشاط السيبراني الغامض وضعت سلطات التكنولوجيا في حالة تأهب.",
+        "desc_hi": "गहरे अंतरिक्ष से असामान्य संकेत और वैश्विक नेटवर्क में पाई गई रहस्यमयी साइबर गतिविधि ने अलर्ट किया।"
+    }
+]
+
+sent_intel_history = []
+
+async def post_hub_content(context: ContextTypes.DEFAULT_TYPE):
+    global sent_intel_history
+    if len(sent_intel_history) >= len(INTEL_HUB):
+        sent_intel_history = []
+    available_items = [item for item in INTEL_HUB if item not in sent_intel_history]
+    if not available_items:
+        available_items = INTEL_HUB
+    item = random.choice(available_items)
+    sent_intel_history.append(item)
+    
+    caption = (
+        f"🌐 <b>SINGULARITY INTEL HUB</b>\n"
+        f"🏷️ <code>{item['type']}</code>\n\n"
+        f"🇬🇧 <b>{item['title_en']}</b>\n"
+        f"🇹🇷 <b>{item['title_tr']}</b>\n\n"
+        f"🇬🇧 <i>{item['desc_en']}</i>\n\n"
+        f"🇹🇷 <i>{item['desc_tr']}</i>\n\n"
+        f"📌 #{item['tag']}"
+    )
+    keyboard = [[InlineKeyboardButton("🔗 Arşivi İncele / Source", url=item['link'])]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    try:
+        await context.bot.send_message(chat_id=CHAT_ID, text=caption, parse_mode="HTML", reply_markup=reply_markup)
+    except Exception as e:
+        print(f"❌ Gönderim hatası: {e}")
+
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    welcome_text = (
+        "🤖 <b>Singularity Hub İstihbarat Üssüne Hoş Geldiniz!</b>\n\n"
+        "This channel automatically serves global state secrets and intelligence updates."
+    )
+    await update.message.reply_text(welcome_text, parse_mode="HTML")
+
+def main():
+    app = Application.builder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("start", start_command))
+    
+    job_queue = app.job_queue
+    if job_queue:
+        job_queue.run_once(post_hub_content, when=3)
+        job_queue.run_repeating(post_hub_content, interval=POST_INTERVAL_MINUTES * 60, first=60)
+    
+    print(f"🚀 Singularity Hub aktif!")
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
+
+if __name__ == '__main__':
+    main()
