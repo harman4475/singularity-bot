@@ -1,6 +1,7 @@
 import logging
 import random
 import threading
+import os
 from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -12,16 +13,18 @@ logging.basicConfig(
 )
 
 # ---------------------------------------------------------
-# RENDER İÇİN MİNİ WEB SUNUCUSU (Kapanmayı Önleyen Sihirli Dokunuş)
+# RENDER İÇİN MİNİ WEB SUNUCUSU (Dinamik Port ve Timeout Önleyici)
 # ---------------------------------------------------------
 web_app = Flask('')
 
 @web_app.route('/')
 def home():
-    return "Singularity Hub Bot is active and running!"
+    return "Singularity Hub Bot is active and running!", 200
 
 def run_web():
-    web_app.run(host='0.0.0.0', port=10000)
+    # Render'ın atadığı dinamik portu yakalıyoruz, yoksa 10000 kullanıyoruz
+    port = int(os.environ.get("PORT", 10000))
+    web_app.run(host='0.0.0.0', port=port)
 
 # ---------------------------------------------------------
 # AYARLAR (Singularity Hub - Çok Dilli İstihbarat Üssü)
@@ -126,7 +129,7 @@ FORTUNE_HUB = [
         "desc_tr": "Bugün küresel ağlarda dönen enerjiler, gizli bir anlaşmanın veya uzun süredir aradığın bir sorunun cevabının önüne çıkacağını gösteriyor. Çevrendeki dijital sinyallere dikkat et.",
         "desc_en": "The energies circulating in global networks today indicate that a secret agreement or the answer to a long-sought question will cross your path. Pay attention to digital signals around you.",
         "desc_ar": "تشير الطاقات المتداولة في الشبكات العالمية اليوم إلى أن اتفاقاً سرياً أو إجابة على سؤال طال البحث عنه ستعترض طريقك.",
-        "desc_hi": "आज वैश्विक नेटवर्क में घूम रही ऊर्जाएं यह संकेत देती हैं कि एक गुप्त समझौता या लंबे समय से तलाशे जा रहे प्रश्न का उत्तर आपके सामने आएगा।"
+        "desc_hi": "आज वैश्विक नेटवर्क में घूम रही ऊर्जाएं यह संकेत देती हैं कि एक गुप्त समझौता या लंबे समय से तलाशे जा रहे प्रश्न का उत्तर आपके सामने आएगा."
     },
     {
         "title_tr": "🔮 Günün İstihbarat Falı: Gölgeler ve Strateji",
@@ -198,7 +201,7 @@ TECH_HUB = [
         "desc_tr": "Derin uzaydan gelen anormal sinyaller ve küresel ağlarda tespit edilen gizemli siber hareketlilik, teknoloji otoritelerini alarm durumuna geçirdi.",
         "desc_en": "Abnormal signals from deep space and mysterious cyber activity detected in global networks put tech authorities on high alert.",
         "desc_ar": "الإشارات غير الطبيعية من الفضاء العميق والنشاط السيبراني الغامض وضعت سلطات التكنولوجيا في حالة تأهب قصوى.",
-        "desc_hi": "गहरे अंतरिक्ष से असामान्य संकेत और वैश्विक नेटवर्क में पाई गई रहस्यमयी साइबर गतिविधि ने तकनीकी अधिकारियों को हाई अलर्ट पर कर दिया है।"
+        "desc_hi": "गहरे अंतरिक्ष से असामान्य संकेत और वैश्विक नेटवर्क में पाई गई रहस्यमयी साइबर गतिविधि ने तकनीकी अधिकारियों को हाई अलर्ट पर कर दिया है."
     },
     {
         "title_tr": "Siber Casusluk ve Offshore Raporu",
@@ -349,7 +352,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(welcome_text, parse_mode="HTML")
 
 def main():
-    # Web sunucusunu arka planda (ayrı bir kolda) başlatıyoruz
+    # Web sunucusunu arka planda başlatıyoruz
     t = threading.Thread(target=run_web)
     t.start()
     
