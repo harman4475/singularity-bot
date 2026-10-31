@@ -2,9 +2,11 @@ import logging
 import random
 import os
 import threading
+import time
 from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram import Bot
 
 # Loglama ayarları
 logging.basicConfig(
@@ -19,7 +21,7 @@ web_app = Flask('')
 
 @web_app.route('/')
 def home():
-    return "Singularity Hub Aerospace & Secret Weapons Bot is active!", 200
+    return "Singularity Hub Thread-Safe Bot is active!", 200
 
 def run_web():
     port = int(os.environ.get("PORT", 10000))
@@ -30,7 +32,7 @@ def run_web():
 # ---------------------------------------------------------
 BOT_TOKEN = "9068851091:AAFFpGSBNjJa3MlhtzeRiA3iKZ8aJ5ETWxE"
 CHAT_ID = "-1004449764057"
-POST_INTERVAL_MINUTES = 30  # Akış sıklığı
+POST_INTERVAL_MINUTES = 30  # Her 30 dakikada bir otomatik atar
 
 # ---------------------------------------------------------
 # UZAY, YÖRÜNGE VE GİZLİ SİLAHLAR İSTİHBARAT HAVUZU
@@ -59,22 +61,12 @@ AEROSPACE_SECRET_HUB = [
         "image": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?q=80&w=1000&auto=format&fit=crop",
         "link": "https://nsarchive.gwu.edu/",
         "tag": "SecretWeapons"
-    },
-    {
-        "type": "🚀 ADVANCED PROPULSION & DEFENSE / PROPULSION AVANCÉE",
-        "title_tr": "Yapay Zeka Destekli Güdümlü Sistemler ve Uzay Tabanlı Gözetleme Uyduları",
-        "title_en": "AI-Powered Guidance Systems and Space-Based Surveillance Satellites",
-        "title_ru": "Системы наведения на базе ИИ и космические спутники наблюдения",
-        "title_ar": "أنظمة التوجيه المدعومة بالذكاء الاصطناعي وأقمار المراقبة الفضائية",
-        "desc_tr": "Yörüngede görev yapan askeri keşif uydularının optik çözünürlük sınırları ve yapay zeka tabanlı otonom yörünge düzeltme motorları.",
-        "desc_en": "Optical resolution limits of orbiting military reconnaissance satellites and AI-driven autonomous orbital adjustment thrusters.",
-        "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop",
-        "link": "https://www.space.com",
-        "tag": "SpaceDefense"
     }
 ]
 
-async def send_aerospace_post(context: ContextTypes.DEFAULT_TYPE):
+# Doğrudan Bot nesnesi üzerinden asenkron bağımsız gönderim fonksiyonu
+async def send_scheduled_post():
+    bot = Bot(token=BOT_TOKEN)
     item = random.choice(AEROSPACE_SECRET_HUB)
     caption = (
         f"🌐 <b>SINGULARITY INTEL: AEROSPACE & SECRET R&D</b>\n"
@@ -92,6 +84,53 @@ async def send_aerospace_post(context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     try:
+        await bot.send_photo(
+            chat_id=CHAT_ID,
+            photo=item['image'],
+            caption=caption,
+            parse_mode="HTML",
+            reply_markup=reply_markup
+        )
+        print("✅ Bağımsız zamanlayıcı ile otomatik post kanala fırlatıldı!")
+    except Exception as e:
+        print(f"❌ Otomatik gönderim hatası: {e}")
+
+# Arka planda saniyeleri sayan bağımsız döngü iş parçacığı
+def background_scheduler():
+    # Bot ilk açıldıktan 10 saniye sonra ilk otomatik postu atar
+    time.sleep(10)
+    import asyncio
+    asyncio.run(send_scheduled_post())
+    
+    # Ardından her X dakikada bir döngüye girer
+    while True:
+        time.sleep(POST_INTERVAL_MINUTES * 60)
+        asyncio.run(send_scheduled_post())
+
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "🤖 <b>Singularity Hub Güvenli Zamanlayıcı Aktif!</b>\n"
+        "Otomatik akış bağımsız thread üzerinden kusursuz çalışıyor.", 
+        parse_mode="HTML"
+    )
+
+async def post_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    item = random.choice(AEROSPACE_SECRET_HUB)
+    caption = (
+        f"🌐 <b>SINGULARITY INTEL: AEROSPACE & SECRET R&D</b>\n"
+        f"🏷️ <code>{item['type']}</code>\n\n"
+        f"🇬🇧 <b>{item['title_en']}</b>\n"
+        f"🇹🇷 <b>{item['title_tr']}</b>\n"
+        f"🇷🇺 <b>{item['title_ru']}</b>\n"
+        f"🇸🇦 <b>{item['title_ar']}</b>\n\n"
+        f"🇬🇧 <i>{item['desc_en']}</i>\n\n"
+        f"🇹🇷 <i>{item['desc_tr']}</i>\n\n"
+        f"🔗 <b>YouTube Detaylı Belgesel Analizi Yakında / Video Breakdown Soon</b>\n"
+        f"📌 #{item['tag']} #SpaceTech #SecretWeapons #SingularityHub"
+    )
+    keyboard = [[InlineKeyboardButton("🔗 Teknik Kaynağı İncele / Source", url=item['link'])]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    try:
         await context.bot.send_photo(
             chat_id=CHAT_ID,
             photo=item['image'],
@@ -99,20 +138,9 @@ async def send_aerospace_post(context: ContextTypes.DEFAULT_TYPE):
             parse_mode="HTML",
             reply_markup=reply_markup
         )
-        print("✅ Uzay ve gizli silahlar istihbarat postu fırlatıldı!")
+        await update.message.reply_text("🚀 Manuel istihbarat postu fırlatıldı usta!")
     except Exception as e:
-        print(f"❌ Gönderim hatası: {e}")
-
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "🤖 <b>Singularity Hub Aerospace & R&D Üssü Aktif!</b>\n"
-        "Yörünge mekanikleri, uydu teknolojileri ve gizli silah arşivleri yayında.", 
-        parse_mode="HTML"
-    )
-
-async def post_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await send_aerospace_post(context)
-    await update.message.reply_text("🚀 Uzay ve gizli silah raporu kanala fırlatıldı usta!")
+        await update.message.reply_text(f"❌ Hata: {e}")
 
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
@@ -120,23 +148,16 @@ def main():
     app.add_handler(CommandHandler("post", post_command))
     
     # Flask sunucusunu arka planda başlatıyoruz
-    t = threading.Thread(target=run_web)
-    t.daemon = True
-    t.start()
+    t_web = threading.Thread(target=run_web)
+    t_web.daemon = True
+    t_web.start()
     
-    # Job Queue'yu güvenli başlatma bloğu
-    async def post_init(application: Application):
-        job_queue = application.job_queue
-        if job_queue:
-            # Bot ayağa kalktıktan 5 saniye sonra ilk otomatik postu atar
-            job_queue.run_once(send_aerospace_post, when=5)
-            # Sonrasında her 30 dakikada bir tekrarlar
-            job_queue.run_repeating(send_aerospace_post, interval=POST_INTERVAL_MINUTES * 60, first=30 * 60)
-            print("🕒 Otomatik zamanlayıcı (Job Queue) başarıyla devreye sokuldu!")
-
-    app.post_init = post_init
+    # Bağımsız zamanlayıcıyı ayrı bir thread olarak devreye sokuyoruz (Asla takılmaz!)
+    t_sched = threading.Thread(target=background_scheduler)
+    t_sched.daemon = True
+    t_sched.start()
     
-    print(f"🚀 Aerospace & Secret Weapons Bot aktif!")
+    print(f"🚀 Thread-Safe Bot ve Bağımsız Zamanlayıcı Aktif!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
