@@ -3,7 +3,8 @@ import random
 import os
 import threading
 import time
-import feedparser
+import urllib.request
+import xml.etree.ElementTree as ET
 from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -34,26 +35,19 @@ def run_web():
 BOT_TOKEN = "9068851091:AAFFpGSBNjJa3MlhtzeRiA3iKZ8aJ5ETWxE"
 CHAT_ID = "-1004449764057"
 
-# Hafıza: Daha önce paylaşılan son dakika haberlerinin ID'leri (tekrarı önlemek için)
 sent_news_ids = set()
 
-# Anlık takip edilecek kritik RSS ve Haber kaynakları (Bakanlıklar, Ajanslar, Savunma)
+# Yerleşik kütüphaneyle taranacak RSS kaynakları
 LIVE_RSS_FEEDS = [
     "https://www.nasa.gov/news-release/feed/",
-    "https://www.defensenews.com/arc/outboundbsfeed/?outputType=xml",
     "https://liveuamap.com/rss"
 ]
 
-# ---------------------------------------------------------
-# İSTİHBARAT VE STRATEJİ HAVUZU
-# ---------------------------------------------------------
 AEROSPACE_SECRET_HUB = [
     {
         "type": "🛰️ ORBITAL MECHANICS & SATELLITE LAUNCH",
         "title_tr": "Uydular Uzaya Nasıl Fırlatılır ve Hedef Yörüngeye Nasıl Yerleşir?",
         "title_en": "How Satellites Are Launched and Inserted into Target Orbits",
-        "title_ru": "Как спутники выводятся на орбиту и занимают заданные позиции",
-        "title_ar": "كيف يتم إطلاق الأقمار الصناعية وكيفية وضعها في مداراتها المستهدفة",
         "desc_tr": "Çok aşamalı roketlerin yerçekimi dönüsü manevraları ve Alçak Dünya Yörüngesi (LEO) fiziksel hesaplamaları.",
         "desc_en": "Multi-stage rocket gravity turn maneuvers and Low Earth Orbit insertion physics.",
         "image": "https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=1000&auto=format&fit=crop",
@@ -64,8 +58,6 @@ AEROSPACE_SECRET_HUB = [
         "type": "☢️ CLANDESTINE WEAPONS & SECRET R&D",
         "title_tr": "Devletlerin Gizli Silah Projeleri ve Yeni Nesil Stratejik Mühimmat Ar-Ge'si",
         "title_en": "State Secret Weapons Projects and Next-Gen Strategic Ordnance R&D",
-        "title_ru": "Секретные оружейные проекты государств и разработка стратегических боеприпасов",
-        "title_ar": "مشاريع الأسلحة السرية للدول وتطوير الذخائر الاستراتيجية من الجيل التالي",
         "desc_tr": "Askeri laboratuvarlarda yürütülen hipersonik süzülme araçları ve elektromanyetik darbe sistemleri.",
         "desc_en": "Classified military laboratory initiatives covering hypersonic glide vehicles and EMP systems.",
         "image": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?q=80&w=1000&auto=format&fit=crop",
@@ -85,66 +77,62 @@ POLL_POOL = [
     }
 ]
 
-# ---------------------------------------------------------
-# ANLIK HABER VE AJANS TARAYICI (Real-Time Feed Scanner)
-# ---------------------------------------------------------
 def check_live_news_and_intel(bot):
     try:
         for feed_url in LIVE_RSS_FEEDS:
-            parsed_feed = feedparser.parse(feed_url)
-            if parsed_feed.entries:
-                latest_entry = parsed_feed.entries[0]
-                entry_id = getattr(latest_entry, 'id', latest_entry.link)
-                
-                if entry_id not in sent_news_ids:
-                    sent_news_ids.add(entry_id)
-                    # Hafızayı şişirmemek için eski ID'leri sınırla
-                    if len(sent_news_ids) > 100:
-                        sent_news_ids.pop()
+            req = urllib.request.Request(feed_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=10) as response:
+                xml_data = response.read()
+                root = ET.fromstring(xml_data)
+                channel = root.find('channel')
+                if channel is not None:
+                    item = channel.find('item')
+                    if item is not None:
+                        title_el = item.find('title')
+                        link_el = item.find('link')
+                        guid_el = item.find('guid')
                         
-                    title = latest_entry.title
-                    link = latest_entry.link
-                    
-                    caption = (
-                        f"⚡ <b>SINGULARITY LIVE BREAKING INTEL</b>\n"
-                        f"🏷️ <code>REAL-TIME FEED ALERT</code>\n\n"
-                        f"🚨 <b>{title}</b>\n\n"
-                        f"🇹🇷 <i>[Anlık Ajans/Bakanlık Verisi Otomatik Çevrildi]</i>\n"
-                        f"🔗 <b>YouTube Stratejik Analiz Yakında</b>\n"
-                        f"📌 #BreakingNews #OSINT #SingularityHub"
-                    )
-                    keyboard = [[InlineKeyboardButton("🔗 Canlı Kaynak / Source", url=link)]]
-                    reply_markup = InlineKeyboardMarkup(keyboard)
-                    
-                    import asyncio
-                    asyncio.run(bot.send_message(
-                        chat_id=CHAT_ID,
-                        text=caption,
-                        parse_mode="HTML",
-                        reply_markup=reply_markup
-                    ))
-                    print(f"⚡ Anlık son dakika haberi yakalandı ve kanala basıldı: {title}")
-                    return True
+                        title = title_el.text if title_el is not None else "Son Dakika İstihbarat"
+                        link = link_el.text if link_el is not None else "https://t.me"
+                        news_id = guid_el.text if guid_el is not None else title
+                        
+                        if news_id not in sent_news_ids:
+                            sent_news_ids.add(news_id)
+                            if len(sent_news_ids) > 100:
+                                sent_news_ids.pop()
+                                
+                            caption = (
+                                f"⚡ <b>SINGULARITY LIVE BREAKING INTEL</b>\n"
+                                f"🏷️ <code>REAL-TIME FEED ALERT</code>\n\n"
+                                f"🚨 <b>{title}</b>\n\n"
+                                f"🇹🇷 <i>[Anlık Ajans Verisi Yakalandı]</i>\n"
+                                f"🔗 <b>YouTube Stratejik Analiz Yakında</b>\n"
+                                f"📌 #BreakingNews #OSINT #SingularityHub"
+                            )
+                            keyboard = [[InlineKeyboardButton("🔗 Canlı Kaynak", url=link)]]
+                            
+                            import asyncio
+                            asyncio.run(bot.send_message(
+                                chat_id=CHAT_ID,
+                                text=caption,
+                                parse_mode="HTML",
+                                reply_markup=InlineKeyboardMarkup(keyboard)
+                            ))
+                            print(f"⚡ Anlık haber fırlatıldı: {title}")
+                            return True
     except Exception as e:
-        print(f"⚠️ Canlı haber tarama hatası: {e}")
+        print(f"⚠️ Haber tarama hatası: {e}")
     return False
 
-# ---------------------------------------------------------
-# ANA DÖNGÜ (Zamanlayıcı ve Anlık Tarayıcı Bir Arada)
-# ---------------------------------------------------------
 def background_scheduler():
     bot = Bot(token=BOT_TOKEN)
-    time.sleep(10) # İlk açılışta 10 sn bekle
-    
+    time.sleep(10)
     counter = 0
     while True:
         try:
-            # 1. Her döngüde (yaklaşık her 30-60 saniyede bir) anlık haber sitelerini/bakanlıkları tara
             has_news = check_live_news_and_intel(bot)
-            
-            # 2. Eğer anlık haber düşmediyse veya belirli bir döngü sayısına ulaşıldıysa araya Stratejik Arşiv/Anket at
             counter += 1
-            if counter >= 30: # Yaklaşık 15-30 dakikada bir rutin içerik
+            if counter >= 20:
                 counter = 0
                 choice_type = random.choice(["post", "poll"])
                 if choice_type == "post":
@@ -168,11 +156,10 @@ def background_scheduler():
         except Exception as ex:
             print(f"Döngü hatası: {ex}")
             
-        # Saniyeler bazında ultra-hızlı kontrol aralığı (Örn: Her 30 saniyede bir haberleri yoklar)
         time.sleep(30)
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🤖 <b>Ultimate OSINT Bot Aktif!</b> Anlık haber ve istihbarat döngüsü devrede.", parse_mode="HTML")
+    await update.message.reply_text("🤖 <b>Ultimate OSINT Bot Aktif!</b> Hata giderildi, sistem stabil.", parse_mode="HTML")
 
 async def post_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot = context.bot
@@ -194,7 +181,7 @@ def main():
     t_sched.daemon = True
     t_sched.start()
     
-    print(f"🚀 Ultimate OSINT Bot tam gaz aktif!")
+    print(f"🚀 Hatasız Ultimate OSINT Bot devrede!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
