@@ -22,7 +22,6 @@ def home():
     return "Singularity Hub Bot is active and running!", 200
 
 def run_web():
-    # Render'ın atadığı dinamik portu yakalıyoruz, yoksa 10000 kullanıyoruz
     port = int(os.environ.get("PORT", 10000))
     web_app.run(host='0.0.0.0', port=port)
 
@@ -171,7 +170,7 @@ HISTORY_HUB = [
         "title_tr": "Tarihte Bugün: Kayıp Arşivlerin Gün Işığına Çıkışı",
         "title_en": "Today in History: The Emergence of Lost Archives",
         "title_ar": "تاريخ اليوم: ظهور الأرشيف المفقود",
-        "title_hi": "इतिहास में आज: खोए हुए अभिलेखों का प्रकाश में आना",
+        "title_hi": "इतिहास में आज: खो हुए अभिलेखों का प्रकाश में आना",
         "desc_tr": "Yıllarca mühürlü kalan uluslararası istihbarat raporları, tarihin bu gününde ilk kez kamuoyuna serbest bırakıldı ve ezber bozan gerçekler gözler önüne serildi.",
         "desc_en": "International intelligence reports sealed for years were declassified to the public for the first time on this day in history.",
         "desc_ar": "تم رفع السرية عن تقارير الاستخبارات الدولية المكتومة لسنوات للجمهور لأول مرة في مثل هذا اليوم.",
