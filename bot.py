@@ -139,11 +139,6 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(welcome_text, parse_mode="HTML")
 
 def main():
-    # Flask sunucusunu arka planda başlatıyoruz
-    t = threading.Thread(target=run_web)
-    t.daemon = True
-    t.start()
-    
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start_command))
     
@@ -151,6 +146,11 @@ def main():
     if job_queue:
         job_queue.run_once(post_hub_content, when=3)
         job_queue.run_repeating(post_hub_content, interval=POST_INTERVAL_MINUTES * 60, first=60)
+    
+    # Flask sunucusunu Telegram polling'den hemen önce başlatıyoruz
+    t = threading.Thread(target=run_web)
+    t.daemon = True
+    t.start()
     
     print(f"🚀 Singularity Hub aktif!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
