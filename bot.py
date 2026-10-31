@@ -1,6 +1,8 @@
 import logging
 import random
 import os
+import threading
+from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -9,6 +11,19 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
+
+# ---------------------------------------------------------
+# RENDER İÇİN MİNİ WEB SUNUCUSU (Keep-Alive)
+# ---------------------------------------------------------
+web_app = Flask('')
+
+@web_app.route('/')
+def home():
+    return "Singularity Hub Bot is active and running!", 200
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    web_app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
 
 # ---------------------------------------------------------
 # AYARLAR (Singularity Hub - Çok Dilli İstihbarat Üssü)
@@ -124,6 +139,11 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(welcome_text, parse_mode="HTML")
 
 def main():
+    # Flask sunucusunu arka planda başlatıyoruz
+    t = threading.Thread(target=run_web)
+    t.daemon = True
+    t.start()
+    
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start_command))
     
