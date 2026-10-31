@@ -1,11 +1,14 @@
 import logging
 import random
 import os
+import threading
+import time
 import urllib.request
 import xml.etree.ElementTree as ET
 from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, ContextTypes, JobQueue
+from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram import Bot
 
 # Loglama ayarları
 logging.basicConfig(
@@ -96,11 +99,7 @@ POLL_POOL = [
     }
 ]
 
-# ---------------------------------------------------------
-# PERİYODİK GÖREVLER (TELEGRAM JOB QUEUE)
-# ---------------------------------------------------------
-async def check_live_news_job(context: ContextTypes.DEFAULT_TYPE):
-    """Her 30 saniyede bir çalışıp RSS beslemelerini kontrol eder."""
+def check_live_news_and_intel(bot):
     try:
         for feed_url in LIVE_RSS_FEEDS:
             req = urllib.request.Request(feed_url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -125,116 +124,58 @@ async def check_live_news_job(context: ContextTypes.DEFAULT_TYPE):
                                 sent_news_ids.pop()
                                 
                             caption = (
-                                "⚡ <b>SINGULARITY ULTRA-CLASSIFIED INTEL</b>\n"
-                                "🏷️ <code>REAL-TIME FEED ALERT</code>\n\n"
+                                f"⚡ <b>SINGULARITY ULTRA-CLASSIFIED INTEL</b>\n"
+                                f"🏷️ <code>REAL-TIME FEED ALERT</code>\n\n"
                                 f"🚨 <b>{title}</b>\n\n"
-                                "🇬🇧 <i>Unfiltered global intelligence feed</i>\n"
-                                "🇹🇷 <i>Filtrelenmemiş küresel istihbarat akışı</i>\n"
-                                "🇩🇪 <i>Ungefilterter globaler Feed</i>\n"
-                                "🇪🇸 <i>Flujo de inteligencia sin filtrar</i>\n"
-                                "🇮🇹 <i>Feed di intelligence non filtrato</i>\n"
-                                "🇮🇳 <i>फिल्टर न किया गया वैश्विक फ़ीड</i>\n\n"
-                                "📌 #BreakingNews #SecretSatellites #SingularityHub"
+                                f"🇬🇧 <i>Unfiltered global intelligence feed</i>\n"
+                                f"🇹🇷 <i>Filtrelenmemiş küresel istihbarat akışı</i>\n"
+                                f"🇩🇪 <i>Ungefilterter globaler Feed</i>\n"
+                                f"🇪🇸 <i>Flujo de inteligencia sin filtrar</i>\n"
+                                f"🇮🇹 <i>Feed di intelligence non filtrato</i>\n"
+                                f"🇮🇳 <i>फिल्टर न किया गया वैश्विक फ़ीड</i>\n\n"
+                                f"📌 #BreakingNews #SecretSatellites #SingularityHub"
                             )
                             keyboard = [[InlineKeyboardButton("🔗 Kaynak / Source / Quelle", url=link)]]
                             
-                            await context.bot.send_message(
+                            import asyncio
+                            asyncio.run(bot.send_message(
                                 chat_id=CHAT_ID,
                                 text=caption,
                                 parse_mode="HTML",
                                 reply_markup=InlineKeyboardMarkup(keyboard)
-                            )
+                            ))
                             print(f"⚡ Gizli akış haberi fırlatıldı: {title}")
-                            return
+                            return True
     except Exception as e:
         print(f"⚠️ Haber tarama hatası: {e}")
+    return False
 
-async def periodic_archives_job(context: ContextTypes.DEFAULT_TYPE):
-    """Her 10 dakikada bir çalışıp rastgele arşiv postası veya anket atar."""
-    try:
-        choice_type = random.choice(["post", "poll"])
-        if choice_type == "post":
-            item = random.choice(ULTRA_CLASSIFIED_HUB)
-            caption = (
-                f"🌐 <b>SINGULARITY INTEL: ULTRA-CLASSIFIED ARCHIVES</b>\n"
-                f"🏷️ <code>{item['type']}</code>\n\n"
-                f"🇬🇧 <b>{item['title_en']}</b>\n"
-                f"🇹🇷 <b>{item['title_tr']}</b>\n"
-                f"🇩🇪 <b>{item['title_de']}</b>\n"
-                f"🇪🇸 <b>{item['title_es']}</b>\n"
-                f"🇮🇹 <b>{item['title_it']}</b>\n"
-                f"🇮🇳 <b>{item['title_hi']}</b>\n\n"
-                f"🇬🇧 <i>{item['desc_en']}</i>\n"
-                f"🇹🇷 <i>{item['desc_tr']}</i>\n\n"
-                f"📌 #{item['tag']} #DeepWeb #SecretSatellites #SingularityHub"
-            )
-            keyboard = [[InlineKeyboardButton("🔗 Gizli Dosyayı İncele / Source", url=item['link'])]]
-            await context.bot.send_photo(
-                chat_id=CHAT_ID, 
-                photo=item['image'], 
-                caption=caption, 
-                parse_mode="HTML", 
-                reply_markup=InlineKeyboardMarkup(keyboard)
-            )
-            print("🌐 Periyodik arşiv postası fırlatıldı!")
-        else:
-            poll = random.choice(POLL_POOL)
-            await context.bot.send_poll(
-                chat_id=CHAT_ID, 
-                question=poll["question"], 
-                options=poll["options"], 
-                is_anonymous=False
-            )
-            print("📊 Periyodik anket fırlatıldı!")
-    except Exception as ex:
-        print(f"⚠️ Arşiv/Anket görev hatası: {ex}")
-
-# ---------------------------------------------------------
-# KOMUTLAR
-# ---------------------------------------------------------
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🤖 <b>Ultra-Classified Station Aktif!</b> Gizli uydular ve yeraltı arşivleri devrede.", parse_mode="HTML")
-
-async def post_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    bot = context.bot
-    item = random.choice(ULTRA_CLASSIFIED_HUB)
-    caption = (
-        f"🌐 <b>ULTRA-CLASSIFIED MANUAL DROP</b>\n\n"
-        f"🇬🇧 {item['title_en']}\n"
-        f"🇹🇷 {item['title_tr']}\n"
-        f"🇩🇪 {item['title_de']}\n"
-        f"🇪🇸 {item['title_es']}\n"
-        f"🇮🇹 {item['title_it']}\n"
-        f"🇮🇳 {item['title_hi']}"
-    )
-    await bot.send_photo(chat_id=CHAT_ID, photo=item['image'], caption=caption, parse_mode="HTML")
-    await update.message.reply_text("🚀 Kimsenin bilmediği gizli dosyalar manuel olarak çakıldı usta!")
-
-def main():
-    # Flask sunucusunu arka planda başlat (Keep-alive)
-    import threading
-    t_web = threading.Thread(target=run_web)
-    t_web.daemon = True
-    t_web.start()
-
-    # Telegram Bot Uygulamasını Kur
-    app = Application.builder().token(BOT_TOKEN).build()
-    
-    # Komut Handler'ları
-    app.add_handler(CommandHandler("start", start_command))
-    app.add_handler(CommandHandler("post", post_command))
-    
-    # Job Queue (Zamanlayıcı) Entegrasyonu
-    job_queue = app.job_queue
-    # Her 30 saniyede bir RSS haberlerini kontrol et
-    job_queue.run_repeating(check_live_news_job, interval=30, first=10)
-    # Her 600 saniyede (10 dakikada) bir arşiv/anket at
-    job_queue.run_repeating(periodic_archives_job, interval=600, first=20)
-
-    print(f"🚀 Ultra-Classified Station devrede ve JobQueue aktif!")
-    
-    # Botu çalıştır
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
-
-if __name__ == '__main__':
-    main()
+def background_scheduler():
+    bot = Bot(token=BOT_TOKEN)
+    time.sleep(10)
+    counter = 0
+    while True:
+        try:
+            has_news = check_live_news_and_intel(bot)
+            counter += 1
+            if counter >= 20:
+                counter = 0
+                choice_type = random.choice(["post", "poll"])
+                if choice_type == "post":
+                    item = random.choice(ULTRA_CLASSIFIED_HUB)
+                    caption = (
+                        f"🌐 <b>SINGULARITY INTEL: ULTRA-CLASSIFIED ARCHIVES</b>\n"
+                        f"🏷️ <code>{item['type']}</code>\n\n"
+                        f"🇬🇧 <b>{item['title_en']}</b>\n"
+                        f"🇹🇷 <b>{item['title_tr']}</b>\n"
+                        f"🇩🇪 <b>{item['title_de']}</b>\n"
+                        f"🇪🇸 <b>{item['title_es']}</b>\n"
+                        f"🇮🇹 <b>{item['title_it']}</b>\n"
+                        f"🇮🇳 <b>{item['title_hi']}</b>\n\n"
+                        f"🇬🇧 <i>{item['desc_en']}</i>\n"
+                        f"🇹🇷 <i>{item['desc_tr']}</i>\n\n"
+                        f"📌 #{item['tag']} #DeepWeb #SecretSatellites #SingularityHub"
+                    )
+                    keyboard = [[InlineKeyboardButton("🔗 Gizli Dosyayı İncele / Source", url=item['link'])]]
+                    import asyncio
+                    asyncio.run(bot.send_photo(chat_id=CHAT_ID, photo=item['image'], caption=caption, parse_mode="HTML", reply
