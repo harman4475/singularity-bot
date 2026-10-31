@@ -23,7 +23,7 @@ web_app = Flask('')
 
 @web_app.route('/')
 def home():
-    return "Singularity Hub Global Polyglot OSINT Bot is active!", 200
+    return "Singularity Hub Ultra-Classified Station is active!", 200
 
 def run_web():
     port = int(os.environ.get("PORT", 10000))
@@ -42,46 +42,60 @@ LIVE_RSS_FEEDS = [
     "https://liveuamap.com/rss"
 ]
 
-# 8 DİLLİ KÜRESEL İSTİHBARAT HAVUZU
-GLOBAL_INTEL_HUB = [
+# 🕵️ KİMSENİN BİLMEDİĞİ GİZLİ UYDULAR, DEEP WEB VE SANSÜRSÜZ İSTİHBARAT HAVUZU (8 DİL)
+ULTRA_CLASSIFIED_HUB = [
     {
-        "type": "🛰️ GLOBAL ORBITAL MECHANICS / MÉCANIQUE ORBITALE",
-        "title_en": "How Satellites Are Launched and Inserted into Target Orbits",
-        "title_tr": "Uydular Uzaya Nasıl Fırlatılır ve Hedef Yörüngeye Nasıl Yerleşir?",
-        "title_de": "Wie Satelliten gestartet und in Zielorbits platziert werden",
-        "title_es": "Cómo se lanzan los satélites y se colocan en órbitas objetivo",
-        "title_it": "Come vengono lanciati i satelliti e posizionati nelle orbite",
-        "title_hi": "उपग्रहों को अंतरिक्ष में कैसे लॉन्च किया जाता है",
-        "desc_en": "Multi-stage rocket gravity turn maneuvers and Low Earth Orbit insertion physics.",
-        "desc_tr": "Çok aşamalı roketlerin yerçekimi dönüsü manevraları ve Alçak Dünya Yörüngesi fiziği.",
-        "image": "https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=1000&auto=format&fit=crop",
-        "link": "https://www.nasa.gov",
-        "tag": "OrbitPhysics"
+        "type": "🛰️ SECRET SATELLITES & OMNISCIENT ORBITS / SATELLITES ESPIONS",
+        "title_en": "Unknown Military Spy Satellites Tracking Every Move on Earth",
+        "title_tr": "Dünya Üzerindeki Her Hareketi İzleyen Gizli Askeri Casus Uydular ve Kör Noktalar",
+        "title_de": "Unbekannte militärische Spionagesatelliten überwachen jede Bewegung",
+        "title_es": "Satélites espías militares desconocidos que rastrean cada movimiento",
+        "title_it": "Satelliti spia militari sconosciuti che tracciano ogni movimento",
+        "title_hi": "गुप्त सैन्य जासूस उपग्रह पृथ्वी पर हर गति पर नजर रख रहे हैं",
+        "desc_en": "Deep background intelligence on black-budget orbital assets capable of sub-meter ground resolution and encrypted signal interception.",
+        "desc_tr": "Alt-metre zemin çözünürlüğüne ve şifreli sinyal ele geçirme yeteneğine sahip gizli bütçeli yörünge varlıkları hakkında derin arka plan.",
+        "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop",
+        "link": "https://nsarchive.gwu.edu/",
+        "tag": "SecretSatellites"
     },
     {
-        "type": "☢️ STRATEGIC WEAPONS R&D / ARMES STRATÉGIQUES",
-        "title_en": "State Secret Weapons Projects and Next-Gen Strategic Ordnance R&D",
-        "title_tr": "Devletlerin Gizli Silah Projeleri ve Yeni Nesil Stratejik Mühimmat Ar-Ge'si",
-        "title_de": "Geheime Waffenprojekte von Staaten und strategische Munitions-F&E",
-        "title_es": "Proyectos de armas secretas estatales e I+D de municiones estratégicas",
-        "title_it": "Progetti di armi segrete statali e ricerca e sviluppo di munizioni",
-        "title_hi": "राज्यों की गुप्त हथियार परियोजनाएं और रणनीतिक अनुसंधान",
-        "desc_en": "Classified military laboratory initiatives covering hypersonic glide vehicles.",
-        "desc_tr": "Hipersonik süzülme araçlarını kapsayan gizli askeri laboratuvar girişimleri.",
+        "type": "🗂️ DEEP WEB ARCHIVES & CLANDESTINE STATE SECRETS / ARCHIVES SECRÈTES",
+        "title_en": "Leaked Underground Dossiers: The Truth Governments Hide from Public",
+        "title_tr": "Sızdırılan Yeraltı Dosyaları: Hükümetlerin Halktan Sakladığı Gerçekler",
+        "title_de": "Durchgesickerte Untergrund-Dossiers: Die Wahrheit der Regierungen",
+        "title_es": "Dosieres subterráneos filtrados: La verdad que los gobiernos ocultan",
+        "title_it": "Dossier sotterranei泄露: La verità che i governi nascondono",
+        "title_hi": "लीक हुए भूमिगत Dossiers: सरकारों द्वारा छिपाए गए सत्य",
+        "desc_en": "Unfiltered data dumps from deep web network nodes revealing covert government research, forgotten treaties, and underground facilities.",
+        "desc_tr": "Gizli hükümet araştırmalarını, unutulmuş anlaşmaları ve yeraltı tesislerini ifşa eden deep web ağ düğümlerinden filtrelenmemiş veri sızıntıları.",
+        "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1000&auto=format&fit=crop",
+        "link": "https://anonymouse.org",
+        "tag": "DeepWebFiles"
+    },
+    {
+        "type": "☢️ UNKNOWN WEAPONS R&D & BLACK PROJECTS / PROJETS NOIRS",
+        "title_en": "Classified Electromagnetic Energy Weapons and Underground R&D Labs",
+        "title_tr": "Sınıflandırılmış Elektromanyetik Enerji Silahları ve Gizli Yeraltı Ar-Ge Laboratuvarları",
+        "title_de": "Klassifizierte elektromagnetische Energiewaffen & unterirdische Labore",
+        "title_es": "Armas de energía electromagnética clasificadas y laboratorios subterráneos",
+        "title_it": "Armi ad energia elettromagnetica classificate e laboratori sotterranei",
+        "title_hi": "वर्गीकृत विद्युत चुम्बकीय ऊर्जा हथियार और भूमिगत अनुसंधान प्रयोगशालाएं",
+        "desc_en": "Deep investigative breakdowns of kinetic impactors, directed-energy prototypes, and classified military complexes.",
+        "desc_tr": "Kinetik çarpıştırıcılar, yönlendirilmiş enerji prototipleri ve sınıflandırılmış askeri kompleksler hakkında derinlemesine incelemeler.",
         "image": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?q=80&w=1000&auto=format&fit=crop",
-        "link": "https://nsarchive.gwu.edu/",
-        "tag": "SecretWeapons"
+        "link": "https://www.nsa.gov",
+        "tag": "BlackProjects"
     }
 ]
 
 POLL_POOL = [
     {
-        "question": "🌐 Sizce gizli askerî projeler ve yeni nesil silahlar kamuoyundan ne kadar saklanabiliyor?",
-        "options": ["Tamamen gizleniyor", "Zaten sızdırılıyor", "Bilinmiyor"]
+        "question": "🌐 Sizce uzaydaki gizli askeri casus uydular halktan daha başka ne kadar saklanabilir?",
+        "options": ["Çoktan ifşa oldu / Already exposed", "Hâlâ tamamen gizli / Fully secret", "Bilinmiyor / Unknown"]
     },
     {
-        "question": "🚀 Yakın gelecekte uzay hâkimiyeti küresel savaşların kaderini belirler mi?",
-        "options": ["Kesinlikle belirler", "Kısmen etkiler", "Etkilemez"]
+        "question": "🕵️ Deep web sızıntıları ve devletlerin karanlık arşivleri dünyayı nasıl etkiler?",
+        "options": ["Küresel uyanıș yaratır / Awakening", "Dengeleri sarsar / Shakes balance", "Hiçbir şey değişmez / No change"]
     }
 ]
 
@@ -110,16 +124,16 @@ def check_live_news_and_intel(bot):
                                 sent_news_ids.pop()
                                 
                             caption = (
-                                f"⚡ <b>SINGULARITY GLOBAL BREAKING INTEL</b>\n"
-                                f"🏷️ <code>MULTI-LANG FEED ALERT</code>\n\n"
+                                f"⚡ <b>SINGULARITY ULTRA-CLASSIFIED INTEL</b>\n"
+                                f"🏷️ <code>REAL-TIME FEED ALERT</code>\n\n"
                                 f"🚨 <b>{title}</b>\n\n"
-                                f"🇬🇧 <i>Global live intelligence feed</i>\n"
-                                f"🇹🇷 <i>Küresel canlı istihbarat akışı</i>\n"
-                                f"🇩🇪 <i>Globaler Live-Intelligenz-Feed</i>\n"
-                                f"🇪🇸 <i>Flujo de inteligencia global en vivo</i>\n"
-                                f"🇮🇹 <i>Feed di intelligenza globale in tempo reale</i>\n"
-                                f"🇮🇳 <i>वैश्विक लाइव खुफिया फ़ीड</i>\n\n"
-                                f"📌 #BreakingNews #GlobalIntel #SingularityHub"
+                                f"🇬🇧 <i>Unfiltered global intelligence feed</i>\n"
+                                f"🇹🇷 <i>Filtrelenmemiş küresel istihbarat akışı</i>\n"
+                                f"🇩🇪 <i>Ungefilterter globaler Feed</i>\n"
+                                f"🇪🇸 <i>Flujo de inteligencia sin filtrar</i>\n"
+                                f"🇮🇹 <i>Feed di intelligence non filtrato</i>\n"
+                                f"🇮🇳 <i>फिल्टर न किया गया वैश्विक फ़ीड</i>\n\n"
+                                f"📌 #BreakingNews #SecretSatellites #SingularityHub"
                             )
                             keyboard = [[InlineKeyboardButton("🔗 Kaynak / Source / Quelle", url=link)]]
                             
@@ -130,7 +144,7 @@ def check_live_news_and_intel(bot):
                                 parse_mode="HTML",
                                 reply_markup=InlineKeyboardMarkup(keyboard)
                             ))
-                            print(f"⚡ 8 dilli anlık haber fırlatıldı: {title}")
+                            print(f"⚡ Gizli akış haberi fırlatıldı: {title}")
                             return True
     except Exception as e:
         print(f"⚠️ Haber tarama hatası: {e}")
@@ -148,9 +162,9 @@ def background_scheduler():
                 counter = 0
                 choice_type = random.choice(["post", "poll"])
                 if choice_type == "post":
-                    item = random.choice(GLOBAL_INTEL_HUB)
+                    item = random.choice(ULTRA_CLASSIFIED_HUB)
                     caption = (
-                        f"🌐 <b>SINGULARITY INTEL: GLOBAL NETWORK</b>\n"
+                        f"🌐 <b>SINGULARITY INTEL: ULTRA-CLASSIFIED ARCHIVES</b>\n"
                         f"🏷️ <code>{item['type']}</code>\n\n"
                         f"🇬🇧 <b>{item['title_en']}</b>\n"
                         f"🇹🇷 <b>{item['title_tr']}</b>\n"
@@ -160,9 +174,9 @@ def background_scheduler():
                         f"🇮🇳 <b>{item['title_hi']}</b>\n\n"
                         f"🇬🇧 <i>{item['desc_en']}</i>\n"
                         f"🇹🇷 <i>{item['desc_tr']}</i>\n\n"
-                        f"📌 #{item['tag']} #GlobalNetwork #SingularityHub"
+                        f"📌 #{item['tag']} #DeepWeb #SecretSatellites #SingularityHub"
                     )
-                    keyboard = [[InlineKeyboardButton("🔗 Teknik Kaynak / Source", url=item['link'])]]
+                    keyboard = [[InlineKeyboardButton("🔗 Gizli Dosyayı İncele / Source", url=item['link'])]]
                     import asyncio
                     asyncio.run(bot.send_photo(chat_id=CHAT_ID, photo=item['image'], caption=caption, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(keyboard)))
                 else:
@@ -175,13 +189,13 @@ def background_scheduler():
         time.sleep(30)
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🤖 <b>Global Polyglot OSINT Bot Aktif!</b> 8 farklı dilde yayın devrede.", parse_mode="HTML")
+    await update.message.reply_text("🤖 <b>Ultra-Classified Station Aktif!</b> Gizli uydular ve yeraltı arşivleri devrede.", parse_mode="HTML")
 
 async def post_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot = context.bot
-    item = random.choice(GLOBAL_INTEL_HUB)
+    item = random.choice(ULTRA_CLASSIFIED_HUB)
     caption = (
-        f"🌐 <b>GLOBAL INTEL TEST</b>\n\n"
+        f"🌐 <b>ULTRA-CLASSIFIED MANUAL DROP</b>\n\n"
         f"🇬🇧 {item['title_en']}\n"
         f"🇹🇷 {item['title_tr']}\n"
         f"🇩🇪 {item['title_de']}\n"
@@ -190,7 +204,7 @@ async def post_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"🇮🇳 {item['title_hi']}"
     )
     await bot.send_photo(chat_id=CHAT_ID, photo=item['image'], caption=caption, parse_mode="HTML")
-    await update.message.reply_text("🚀 8 dilli manuel test postu çakıldı usta!")
+    await update.message.reply_text("🚀 Kimsenin bilmediği gizli dosyalar manuel olarak çakıldı usta!")
 
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
@@ -205,7 +219,7 @@ def main():
     t_sched.daemon = True
     t_sched.start()
     
-    print(f"🚀 Global Polyglot Bot devrede!")
+    print(f"🚀 Ultra-Classified Station devrede!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
