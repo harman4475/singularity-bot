@@ -36,10 +36,11 @@ def run_web():
 BOT_TOKEN = "9068851091:AAFFpGSBNjJa3MlhtzeRiA3iKZ8aJ5ETWxE"
 CHAT_ID = "-1004449764057"
 
+# Mükerrerleri önlemek için kapasiteyi artırdık
 sent_news_ids = set()
 sent_archive_tags = []
 
-# 🌐 DÜNYANIN DÖRT BİR YANINDAN ENTASTE VE CANLI HABER AKIŞLARI
+# 🌐 DÜNYANIN DÖRT BİR YANINDAN ENTEGRE VE CANLI HABER AKIŞLARI
 LIVE_RSS_FEEDS = [
     "https://feeds.bbci.co.uk/news/world/rss.xml",
     "https://www.aljazeera.com/xml/rss/all.xml",
@@ -159,64 +160,63 @@ def send_telegram_poll(question, options):
     return None
 
 def check_live_news_and_intel():
-    """Dünyadan anlık haber kokularını yakalayan gelişmiş tarayıcı"""
+    """Dünyadan anlık haberleri tarayan ve mükerrerliğe karşı korumalı akış fonksiyonu"""
     try:
         feeds_shuffled = list(LIVE_RSS_FEEDS)
         random.shuffle(feeds_shuffled)
         
         for feed_url in feeds_shuffled:
             try:
-                req = urllib.request.Request(feed_url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+                req = urllib.request.Request(feed_url, headers={'User-Agent': 'Mozilla/5.0'})
                 with urllib.request.urlopen(req, timeout=10) as response:
                     xml_data = response.read()
                     root = ET.fromstring(xml_data)
                     
-                    # RSS veya Atom formatı kontrolü
                     items = []
                     channel = root.find('channel')
                     if channel is not None:
                         items = channel.findall('item')
                     else:
-                        # Atom desteği
                         items = root.findall('{http://www.w3.org/2005/Atom}entry')
 
                     if items:
-                        # En taze haberlerden rastgele birini seç
-                        item = random.choice(items[:5])
-                        
-                        title_el = item.find('title') if channel is not None else item.find('{http://www.w3.org/2005/Atom}title')
-                        link_el = item.find('link') if channel is not None else item.find('{http://www.w3.org/2005/Atom}link')
-                        guid_el = item.find('guid') if channel is not None else item.find('{http://www.w3.org/2005/Atom}id')
-                        
-                        title = title_el.text if title_el is not None and title_el.text else "Küresel İstihbarat Akışı"
-                        
-                        # Link elementinin yapısına göre URL'yi çek
-                        link = "https://t.me"
-                        if link_el is not None:
-                            link = link_el.text if link_el.text else link_el.get('href', "https://t.me")
+                        # Akıştaki ilk 10 haberi karıştırıp taze bir seçim yapalım
+                        random.shuffle(items)
+                        for item in items[:10]:
+                            title_el = item.find('title') if channel is not None else item.find('{http://www.w3.org/2005/Atom}title')
+                            link_el = item.find('link') if channel is not None else item.find('{http://www.w3.org/2005/Atom}link')
+                            guid_el = item.find('guid') if channel is not None else item.find('{http://www.w3.org/2005/Atom}id')
                             
-                        news_id = guid_el.text if guid_el is not None and guid_el.text else title
-                        
-                        if news_id not in sent_news_ids:
-                            sent_news_ids.add(news_id)
-                            if len(sent_news_ids) > 250:
-                                sent_news_ids.pop()
+                            title = title_el.text if title_el is not None and title_el.text else "Küresel İstihbarat Akışı"
+                            
+                            link = "https://t.me"
+                            if link_el is not None:
+                                link = link_el.text if link_el.text else link_el.get('href', "https://t.me")
                                 
-                            caption = (
-                                f"⚡ <b>SINGULARITY ULTRA-CLASSIFIED INTEL</b>\n"
-                                f"🏷️ <code>GLOBAL LIVE DISPATCH</code>\n\n"
-                                f"🚨 <b>{title}</b>\n\n"
-                                f"🇬🇧 <i>Live global intelligence wire</i>\n"
-                                f"🇹🇷 <i>Canlı küresel istihbarat bülteni</i>\n\n"
-                                f"📌 #BreakingNews #GlobalIntel #SingularityHub"
-                            )
-                            keyboard = {
-                                "inline_keyboard": [[{"text": "🔗 Kaynak / Source", "url": link}]]
-                            }
+                            # Benzersiz ID oluşturma (guid yoksa link veya başlığı baz al)
+                            news_id = guid_el.text if (guid_el is not None and guid_el.text) else (link if link != "https://t.me" else title)
                             
-                            send_telegram_message(caption, reply_markup=keyboard)
-                            print(f"⚡ Canlı dünya haberi yakalandı ve fırlatıldı: {title}")
-                            return True
+                            if news_id not in sent_news_ids:
+                                sent_news_ids.add(news_id)
+                                # Bellek şişmesin diye seti makul bir boyutta tutalım
+                                if len(sent_news_ids) > 1000:
+                                    sent_news_ids.pop()
+                                    
+                                caption = (
+                                    f"⚡ <b>SINGULARITY ULTRA-CLASSIFIED INTEL</b>\n"
+                                    f"🏷️ <code>GLOBAL LIVE DISPATCH</code>\n\n"
+                                    f"🚨 <b>{title}</b>\n\n"
+                                    f"🇬🇧 <i>Live global intelligence wire</i>\n"
+                                    f"🇹🇷 <i>Canlı küresel istihbarat bülteni</i>\n\n"
+                                    f"📌 #BreakingNews #GlobalIntel #SingularityHub"
+                                )
+                                keyboard = {
+                                    "inline_keyboard": [[{"text": "🔗 Kaynak / Source", "url": link}]]
+                                }
+                                
+                                send_telegram_message(caption, reply_markup=keyboard)
+                                print(f"⚡ Canlı dünya haberi yakalandı ve fırlatıldı: {title}")
+                                return True
             except Exception as inner_err:
                 print(f"⚠️ Feed okuma alt hatası ({feed_url}): {inner_err}")
                 continue
@@ -228,11 +228,13 @@ def background_scheduler():
     time.sleep(10)
     while True:
         try:
-            # Her döngüde önce taze bir dünya haberi çekmeyi dene
-            news_sent = check_live_news_and_intel()
+            choice_type = random.choice(["post", "poll", "news"])
             
-            # Eğer haber çekilemediyse veya sıradaki turda arşiv/anket atılacaksa
-            choice_type = random.choice(["post", "poll", "news_extra"])
+            if choice_type == "news":
+                # Canlı haber çekmeyi dene, eğer atılabilecek taze haber bulunamazsa arşife yönlendir
+                success = check_live_news_and_intel()
+                if not success:
+                    choice_type = "post"
             
             if choice_type == "post":
                 available_posts = [p for p in ULTRA_CLASSIFIED_HUB if p['tag'] not in sent_archive_tags]
@@ -266,7 +268,7 @@ def background_scheduler():
         except Exception as ex:
             print(f"Döngü hatası: {ex}")
             
-        # Döngü hızı (her 30 saniyede bir yeni bir dünya kokusu veya arşiv patlatır)
+        # Döngü hızı (her 30 saniyede bir)
         time.sleep(30)
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
