@@ -31,14 +31,35 @@ def run_web():
     web_app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
 
 # ---------------------------------------------------------
-# AYARLAR 
+# AYARLAR & KALICI HAFIZA DOSYASI
 # ---------------------------------------------------------
 BOT_TOKEN = "9068851091:AAFFpGSBNjJa3MlhtzeRiA3iKZ8aJ5ETWxE"
 CHAT_ID = "-1004449764057"
 
-# Mükerrerleri önlemek için kapasiteyi artırdık
-sent_news_ids = set()
+HISTORY_FILE = "sent_news_history.json"
 sent_archive_tags = []
+
+def load_sent_news():
+    """Daha önce gönderilen haberleri diskten yükler (Restart'ta unutmaz)"""
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return set(json.load(f))
+        except Exception as e:
+            print(f"⚠️ Geçmiş dosyası okunamadı: {e}")
+    return set()
+
+def save_sent_news(news_set):
+    """Gönderilen haberleri diske kaydeder"""
+    try:
+        # Dosya şişmesin diye son 1500 haberi sakla
+        data_list = list(news_set)[-1500:]
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(data_list, f)
+    except Exception as e:
+        print(f"⚠️ Geçmiş dosyasına yazılamadı: {e}")
+
+sent_news_ids = load_sent_news()
 
 # 🌐 DÜNYANIN DÖRT BİR YANINDAN ENTEGRE VE CANLI HABER AKIŞLARI
 LIVE_RSS_FEEDS = [
@@ -94,23 +115,23 @@ ULTRA_CLASSIFIED_HUB = [
     }
 ]
 
-# 📊 KANAL İÇİN ETKİLEŞİMLİ ANKET HAVUZU
+# 📊 KANAL İÇİN ÇOK DİLLİ ETKİLEŞİMLİ ANKET HAVUZU
 POLL_POOL = [
     {
-        "question": "🌐 Sizce uzaydaki gizli askeri casus uydular ve black-project projeleri halktan daha ne kadar saklanabilir?",
+        "question": "🌐 Sizce gizli askeri uydular halktan daha ne kadar saklanabilir?\n🇬🇧 How long can secret military satellites be hidden?",
         "options": ["Çoktan ifşa oldu / Already exposed", "Hâlâ tamamen gizli / Fully secret", "Bilinmiyor / Unknown"]
     },
     {
-        "question": "🕵️ Deep web sızıntıları ve devletlerin karanlık arşivleri küresel dengeleri nasıl etkiler?",
-        "options": ["Büyük bir uyanış yaratır / Awakening", "Dengeleri sarsar / Shakes balance", "Hiçbir şey değişmez / No change"]
+        "question": "🕵️ Deep web sızıntıları küresel dengeleri nasıl etkiler?\n🇬🇧 How do deep web leaks affect global balance?",
+        "options": ["Büyük bir uyanış / Awakening", "Dengeleri sarsar / Shakes balance", "Hiçbir şey değişmez / No change"]
     },
     {
-        "question": "🚀 Yapay zeka ve uzay teknolojilerindeki bu hızla ilerleyen keşifler insanlığın sonunu mu getirecek, çağ mı atlatacak?",
-        "options": ["Yeni bir çağ başlatır 🌟", "Tehlikeli bir son hazırlıyor ⚠️", "Kararsızım / Nötr 🤖"]
+        "question": "🚀 Yapay zeka ve uzay keşifleri insanlığın sonunu mu getirecek, çağ mı atlatacak?\n🇬🇧 Will AI and space discoveries end humanity or start a new era?",
+        "options": ["Yeni bir çağ / New era 🌟", "Tehlikeli bir son / Dangerous end ⚠️", "Kararsızım / Neutral 🤖"]
     },
     {
-        "question": "🛰️ Sizce dünya dışı akıllı yaşam izleri hükümetler tarafından saklanıyor mu?",
-        "options": ["Kesinlikle saklanıyor 👽", "Kesinlikle saklanmıyor 🌍", "Kanıt yok ama olabilir 🤔"]
+        "question": "🛰️ Dünya dışı akıllı yaşam hükümetler tarafından saklanıyor mu?\n🇬🇧 Is extraterrestrial life hidden by governments?",
+        "options": ["Kesinlikle saklanıyor / Yes 👽", "Saklanmıyor / No 🌍", "Kanıt yok / Maybe 🤔"]
     }
 ]
 
@@ -160,7 +181,7 @@ def send_telegram_poll(question, options):
     return None
 
 def check_live_news_and_intel():
-    """Dünyadan anlık haberleri tarayan ve mükerrerliğe karşı korumalı akış fonksiyonu"""
+    """Dünyadan anlık haberleri tarayan, mükerrerliği önleyen ve diske kaydeden fonksiyon"""
     try:
         feeds_shuffled = list(LIVE_RSS_FEEDS)
         random.shuffle(feeds_shuffled)
@@ -180,9 +201,8 @@ def check_live_news_and_intel():
                         items = root.findall('{http://www.w3.org/2005/Atom}entry')
 
                     if items:
-                        # Akıştaki ilk 10 haberi karıştırıp taze bir seçim yapalım
                         random.shuffle(items)
-                        for item in items[:10]:
+                        for item in items[:15]:
                             title_el = item.find('title') if channel is not None else item.find('{http://www.w3.org/2005/Atom}title')
                             link_el = item.find('link') if channel is not None else item.find('{http://www.w3.org/2005/Atom}link')
                             guid_el = item.find('guid') if channel is not None else item.find('{http://www.w3.org/2005/Atom}id')
@@ -193,14 +213,12 @@ def check_live_news_and_intel():
                             if link_el is not None:
                                 link = link_el.text if link_el.text else link_el.get('href', "https://t.me")
                                 
-                            # Benzersiz ID oluşturma (guid yoksa link veya başlığı baz al)
+                            # Benzersiz ID oluşturma (guid öncelikli, yoksa link veya başlık)
                             news_id = guid_el.text if (guid_el is not None and guid_el.text) else (link if link != "https://t.me" else title)
                             
                             if news_id not in sent_news_ids:
                                 sent_news_ids.add(news_id)
-                                # Bellek şişmesin diye seti makul bir boyutta tutalım
-                                if len(sent_news_ids) > 1000:
-                                    sent_news_ids.pop()
+                                save_sent_news(sent_news_ids)  # Diske anında kaydet
                                     
                                 caption = (
                                     f"⚡ <b>SINGULARITY ULTRA-CLASSIFIED INTEL</b>\n"
@@ -231,7 +249,6 @@ def background_scheduler():
             choice_type = random.choice(["post", "poll", "news"])
             
             if choice_type == "news":
-                # Canlı haber çekmeyi dene, eğer atılabilecek taze haber bulunamazsa arşife yönlendir
                 success = check_live_news_and_intel()
                 if not success:
                     choice_type = "post"
@@ -268,7 +285,6 @@ def background_scheduler():
         except Exception as ex:
             print(f"Döngü hatası: {ex}")
             
-        # Döngü hızı (her 30 saniyede bir)
         time.sleep(30)
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
