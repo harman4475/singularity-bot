@@ -38,46 +38,57 @@ CHAT_ID = "-1004449764057"
 
 sent_news_ids = set()
 
+# 🌐 DEV GENİŞLETİLMİŞ KÜRESEL HABER VE BİLİM HAVUZU
 LIVE_RSS_FEEDS = [
     "https://www.nasa.gov/news-release/feed/",
-    "https://liveuamap.com/rss"
+    "https://liveuamap.com/rss",
+    "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://www.aljazeera.com/xml/rss/all.xml",
+    "https://rss.dw.com/rdf/rss-en-top",
+    "https://www.space.com/home/feed/site.xml",
+    "https://www.technologyreview.com/feed/"
 ]
 
+# 🕵️ GİZLİ SATELLITE, DEEP WEB VE SANSÜRSÜZ İSTİHBARAT HAVUZU
 ULTRA_CLASSIFIED_HUB = [
     {
         "type": "🛰️ SECRET SATELLITES & OMNISCIENT ORBITS",
         "title_en": "Unknown Military Spy Satellites Tracking Every Move on Earth",
         "title_tr": "Dünya Üzerindeki Her Hareketi İzleyen Gizli Askeri Casus Uydular",
-        "desc_en": "Deep background intelligence on black-budget orbital assets.",
-        "desc_tr": "Alt-metre zemin çözünürlüğüne sahip gizli bütçeli yörünge varlıkları.",
+        "desc_en": "Deep background intelligence on black-budget orbital assets capable of sub-meter resolution.",
+        "desc_tr": "Alt-metre çözünürlüğe sahip gizli bütçeli yörünge varlıkları hakkında derin arka plan.",
         "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop",
         "link": "https://nsarchive.gwu.edu/",
         "tag": "SecretSatellites"
     },
     {
         "type": "🗂️ DEEP WEB ARCHIVES & CLANDESTINE STATE SECRETS",
-        "title_en": "Leaked Underground Dossiers: The Truth Governments Hide",
-        "title_tr": "Sızdırılan Yeraltı Dosyaları: Hükümetlerin Sakladığı Gerçekler",
-        "desc_en": "Unfiltered data dumps from deep web network nodes.",
-        "desc_tr": "Gizli hükümet araştırmalarını ifşa eden veri sızıntıları.",
+        "title_en": "Leaked Underground Dossiers: The Truth Governments Hide from Public",
+        "title_tr": "Sızdırılan Yeraltı Dosyaları: Hükümetlerin Halktan Sakladığı Gerçekler",
+        "desc_en": "Unfiltered data dumps from deep web network nodes revealing covert research.",
+        "desc_tr": "Gizli hükümet araştırmalarını ve unutulmuş anlaşmaları ifşa eden sızıntılar.",
         "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1000&auto=format&fit=crop",
         "link": "https://anonymouse.org",
         "tag": "DeepWebFiles"
+    },
+    {
+        "type": "☢️ UNKNOWN WEAPONS R&D & BLACK PROJECTS",
+        "title_en": "Classified Electromagnetic Energy Weapons and Underground R&D Labs",
+        "title_tr": "Sınıflandırılmış Elektromanyetik Enerji Silahları ve Gizli Laboratuvarlar",
+        "desc_en": "Deep investigative breakdowns of kinetic impactors and directed-energy prototypes.",
+        "desc_tr": "Kinetik çarpıştırıcılar ve yönlendirilmiş enerji prototipleri hakkında incelemeler.",
+        "image": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?q=80&w=1000&auto=format&fit=crop",
+        "link": "https://www.nsa.gov",
+        "tag": "BlackProjects"
     }
 ]
 
-# Thread-safe doğrudan Telegram HTTP API istekleri (Asenkron çakışmalarını önler)
 def send_telegram_message(text, reply_markup=None):
     try:
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-        payload = {
-            "chat_id": CHAT_ID,
-            "text": text,
-            "parse_mode": "HTML"
-        }
+        payload = {"chat_id": CHAT_ID, "text": text, "parse_mode": "HTML"}
         if reply_markup:
             payload["reply_markup"] = json.dumps(reply_markup)
-        
         data = urllib.parse.urlencode(payload).encode("utf-8")
         req = urllib.request.Request(url, data=data, method="POST")
         with urllib.request.urlopen(req, timeout=10) as response:
@@ -89,15 +100,9 @@ def send_telegram_message(text, reply_markup=None):
 def send_telegram_photo(photo_url, caption, reply_markup=None):
     try:
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
-        payload = {
-            "chat_id": CHAT_ID,
-            "photo": photo_url,
-            "caption": caption,
-            "parse_mode": "HTML"
-        }
+        payload = {"chat_id": CHAT_ID, "photo": photo_url, "caption": caption, "parse_mode": "HTML"}
         if reply_markup:
             payload["reply_markup"] = json.dumps(reply_markup)
-            
         data = urllib.parse.urlencode(payload).encode("utf-8")
         req = urllib.request.Request(url, data=data, method="POST")
         with urllib.request.urlopen(req, timeout=10) as response:
@@ -121,40 +126,44 @@ def check_live_news_and_intel():
                         link_el = item.find('link')
                         guid_el = item.find('guid')
                         
-                        title = title_el.text if title_el is not None else "Son Dakika İstihbarat"
+                        title = title_el.text if title_el is not None else "Küresel İstihbarat Akışı"
                         link = link_el.text if link_el is not None else "https://t.me"
                         news_id = guid_el.text if guid_el is not None else title
                         
                         if news_id not in sent_news_ids:
                             sent_news_ids.add(news_id)
-                            if len(sent_news_ids) > 100:
+                            if len(sent_news_ids) > 150:
                                 sent_news_ids.pop()
                                 
                             caption = (
                                 f"⚡ <b>SINGULARITY ULTRA-CLASSIFIED INTEL</b>\n"
-                                f"🏷️ <code>REAL-TIME FEED ALERT</code>\n\n"
+                                f"🏷️ <code>GLOBAL FEED DISPATCH</code>\n\n"
                                 f"🚨 <b>{title}</b>\n\n"
-                                f"📌 #BreakingNews #SecretSatellites #SingularityHub"
+                                f"🇬🇧 <i>Unfiltered global intelligence wire</i>\n"
+                                f"🇹🇷 <i>Filtrelenmemiş küresel istihbarat bülteni</i>\n"
+                                f"🇩🇪 <i>Ungefilterter globaler Nachrichtendienst</i>\n"
+                                f"🇪🇸 <i>Flujo de inteligencia global sin filtrar</i>\n\n"
+                                f"📌 #BreakingNews #GlobalIntel #SingularityHub"
                             )
                             keyboard = {
-                                "inline_keyboard": [[{"text": "🔗 Kaynak / Source", "url": link}]]
+                                "inline_keyboard": [[{"text": "🔗 Kaynak / Source / Quelle", "url": link}]]
                             }
                             
                             send_telegram_message(caption, reply_markup=keyboard)
-                            print(f"⚡ Gizli akış haberi fırlatıldı: {title}")
+                            print(f"⚡ Küresel akış haberi fırlatıldı: {title}")
                             return True
     except Exception as e:
         print(f"⚠️ Haber tarama hatası: {e}")
     return False
 
 def background_scheduler():
-    time.sleep(10)
+    time.sleep(15)
     counter = 0
     while True:
         try:
             check_live_news_and_intel()
             counter += 1
-            if counter >= 5: # Test için süreyi kısalttık, 20 yerine 5 yapabilirsin
+            if counter >= 4:  # Canlı akış ve arşiv dengesi için optimize edildi
                 counter = 0
                 item = random.choice(ULTRA_CLASSIFIED_HUB)
                 caption = (
@@ -162,23 +171,38 @@ def background_scheduler():
                     f"🏷️ <code>{item['type']}</code>\n\n"
                     f"🇬🇧 <b>{item['title_en']}</b>\n"
                     f"🇹🇷 <b>{item['title_tr']}</b>\n\n"
-                    f"📌 #{item['tag']} #DeepWeb #SingularityHub"
+                    f"🇬🇧 <i>{item['desc_en']}</i>\n"
+                    f"🇹🇷 <i>{item['desc_tr']}</i>\n\n"
+                    f"📌 #{item['tag']} #DeepWeb #SecretSatellites #SingularityHub"
                 )
                 keyboard = {
-                    "inline_keyboard": [[{"text": "🔗 Gizli Dosyayı İncele", "url": item['link']}]]
+                    "inline_keyboard": [[{"text": "🔗 Gizli Dosyayı İncele / Source", "url": item['link']}]]
                 }
                 send_telegram_photo(item['image'], caption, reply_markup=keyboard)
         except Exception as ex:
             print(f"Döngü hatası: {ex}")
             
-        time.sleep(30)
+        time.sleep(35)
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🤖 <b>Ultra-Classified Station Aktif!</b>", parse_mode="HTML")
+    await update.message.reply_text("🤖 <b>Singularity Hub İstasyonu Tam Kapasite Devrede!</b>", parse_mode="HTML")
+
+async def post_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    bot = context.bot
+    item = random.choice(ULTRA_CLASSIFIED_HUB)
+    caption = (
+        f"🌐 <b>ULTRA-CLASSIFIED MANUAL DROP</b>\n\n"
+        f"🇬🇧 {item['title_en']}\n"
+        f"🇹🇷 {item['title_tr']}"
+    )
+    # Manuel komut için de basit uyumlu gönderim yapılabilir
+    send_telegram_photo(item['image'], caption)
+    await update.message.reply_text("🚀 Gizli dosya manuel olarak gruba çakıldı usta!")
 
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start_command))
+    app.add_handler(CommandHandler("post", post_command))
     
     t_web = threading.Thread(target=run_web)
     t_web.daemon = True
@@ -188,7 +212,7 @@ def main():
     t_sched.daemon = True
     t_sched.start()
     
-    print(f"🚀 Ultra-Classified Station devrede!")
+    print(f"🚀 Genişletilmiş İstihbarat İstasyonu Aktif!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
