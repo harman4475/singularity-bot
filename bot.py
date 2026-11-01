@@ -83,6 +83,26 @@ ULTRA_CLASSIFIED_HUB = [
     }
 ]
 
+# 📊 KANAL İÇİN ETKİLEŞİMLİ ANKET HAVUZU (GERİ DÖNDÜ!)
+POLL_POOL = [
+    {
+        "question": "🌐 Sizce uzaydaki gizli askeri casus uydular ve black-project projeleri halktan daha ne kadar saklanabilir?",
+        "options": ["Çoktan ifşa oldu / Already exposed", "Hâlâ tamamen gizli / Fully secret", "Bilinmiyor / Unknown"]
+    },
+    {
+        "question": "🕵️ Deep web sızıntıları ve devletlerin karanlık arşivleri küresel dengeleri nasıl etkiler?",
+        "options": ["Büyük bir uyanış yaratır / Awakening", "Dengeleri sarsar / Shakes balance", "Hiçbir şey değişmez / No change"]
+    },
+    {
+        "question": "🚀 Yapay zeka ve uzay teknolojilerindeki bu hızla ilerleyen keşifler insanlığın sonunu mu getirecek, çağ mı atlatacak?",
+        "options": ["Yeni bir çağ başlatır 🌟", "Tehlikeli bir son hazırlıyor ⚠️", "Kararsızım / Nötr 🤖"]
+    },
+    {
+        "question": "🛰️ Sizce dünya dışı akıllı yaşam izleri governments (hükümetler) tarafından saklanıyor mu?",
+        "options": ["Kesinlikle saklanıyor 👽", "Kesinlikle saklanmıyor 🌍", "Kanıt yok ama olabilir 🤔"]
+    }
+]
+
 def send_telegram_message(text, reply_markup=None):
     try:
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -109,6 +129,23 @@ def send_telegram_photo(photo_url, caption, reply_markup=None):
             return json.loads(response.read().decode())
     except Exception as e:
         print(f"⚠️ Telegram Fotoğraf Gönderme Hatası: {e}")
+    return None
+
+def send_telegram_poll(question, options):
+    try:
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPoll"
+        payload = {
+            "chat_id": CHAT_ID,
+            "question": question,
+            "options": json.dumps(options),
+            "is_anonymous": False
+        }
+        data = urllib.parse.urlencode(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=data, method="POST")
+        with urllib.request.urlopen(req, timeout=10) as response:
+            return json.loads(response.read().decode())
+    except Exception as e:
+        print(f"⚠️ Telegram Anket Gönderme Hatası: {e}")
     return None
 
 def check_live_news_and_intel():
@@ -140,9 +177,7 @@ def check_live_news_and_intel():
                                 f"🏷️ <code>GLOBAL FEED DISPATCH</code>\n\n"
                                 f"🚨 <b>{title}</b>\n\n"
                                 f"🇬🇧 <i>Unfiltered global intelligence wire</i>\n"
-                                f"🇹🇷 <i>Filtrelenmemiş küresel istihbarat bülteni</i>\n"
-                                f"🇩🇪 <i>Ungefilterter globaler Nachrichtendienst</i>\n"
-                                f"🇪🇸 <i>Flujo de inteligencia global sin filtrar</i>\n\n"
+                                f"🇹🇷 <i>Filtrelenmemiş küresel istihbarat bülteni</i>\n\n"
                                 f"📌 #BreakingNews #GlobalIntel #SingularityHub"
                             )
                             keyboard = {
@@ -163,39 +198,46 @@ def background_scheduler():
         try:
             check_live_news_and_intel()
             counter += 1
-            if counter >= 4:  # Canlı akış ve arşiv dengesi için optimize edildi
+            if counter >= 3:  # Döngü sıklığına göre arşivi veya anketi tetikler
                 counter = 0
-                item = random.choice(ULTRA_CLASSIFIED_HUB)
-                caption = (
-                    f"🌐 <b>SINGULARITY INTEL: ULTRA-CLASSIFIED ARCHIVES</b>\n"
-                    f"🏷️ <code>{item['type']}</code>\n\n"
-                    f"🇬🇧 <b>{item['title_en']}</b>\n"
-                    f"🇹🇷 <b>{item['title_tr']}</b>\n\n"
-                    f"🇬🇧 <i>{item['desc_en']}</i>\n"
-                    f"🇹🇷 <i>{item['desc_tr']}</i>\n\n"
-                    f"📌 #{item['tag']} #DeepWeb #SecretSatellites #SingularityHub"
-                )
-                keyboard = {
-                    "inline_keyboard": [[{"text": "🔗 Gizli Dosyayı İncele / Source", "url": item['link']}]]
-                }
-                send_telegram_photo(item['image'], caption, reply_markup=keyboard)
+                choice_type = random.choice(["post", "poll"])
+                
+                if choice_type == "post":
+                    item = random.choice(ULTRA_CLASSIFIED_HUB)
+                    caption = (
+                        f"🌐 <b>SINGULARITY INTEL: ULTRA-CLASSIFIED ARCHIVES</b>\n"
+                        f"🏷️ <code>{item['type']}</code>\n\n"
+                        f"🇬🇧 <b>{item['title_en']}</b>\n"
+                        f"🇹🇷 <b>{item['title_tr']}</b>\n\n"
+                        f"🇬🇧 <i>{item['desc_en']}</i>\n"
+                        f"🇹🇷 <i>{item['desc_tr']}</i>\n\n"
+                        f"📌 #{item['tag']} #DeepWeb #SecretSatellites #SingularityHub"
+                    )
+                    keyboard = {
+                        "inline_keyboard": [[{"text": "🔗 Gizli Dosyayı İncele / Source", "url": item['link']}]]
+                    }
+                    send_telegram_photo(item['image'], caption, reply_markup=keyboard)
+                    print("🌐 Arşiv postu fırlatıldı.")
+                else:
+                    poll = random.choice(POLL_POOL)
+                    send_telegram_poll(poll["question"], poll["options"])
+                    print("📊 Kanal anketi fırlatıldı.")
+                    
         except Exception as ex:
             print(f"Döngü hatası: {ex}")
             
         time.sleep(35)
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🤖 <b>Singularity Hub İstasyonu Tam Kapasite Devrede!</b>", parse_mode="HTML")
+    await update.message.reply_text("🤖 <b>Singularity Hub İstasyonu Tam Kapasite Devrede! (Haberler, Arşivler ve Anketler Aktif)</b>", parse_mode="HTML")
 
 async def post_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    bot = context.bot
     item = random.choice(ULTRA_CLASSIFIED_HUB)
     caption = (
         f"🌐 <b>ULTRA-CLASSIFIED MANUAL DROP</b>\n\n"
         f"🇬🇧 {item['title_en']}\n"
         f"🇹🇷 {item['title_tr']}"
     )
-    # Manuel komut için de basit uyumlu gönderim yapılabilir
     send_telegram_photo(item['image'], caption)
     await update.message.reply_text("🚀 Gizli dosya manuel olarak gruba çakıldı usta!")
 
@@ -212,7 +254,7 @@ def main():
     t_sched.daemon = True
     t_sched.start()
     
-    print(f"🚀 Genişletilmiş İstihbarat İstasyonu Aktif!")
+    print(f"🚀 Anket destekli genişletilmiş istasyon aktif!")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
