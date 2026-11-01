@@ -38,6 +38,7 @@ CHAT_ID = "-1004449764057"
 
 HISTORY_FILE = "sent_news_history.json"
 sent_archive_tags = []
+sent_poll_ids = []  # Atılan anketlerin tekrar etmemesi için hafıza
 
 def load_sent_news():
     """Daha önce gönderilen haberleri diskten yükler (Restart'ta unutmaz)"""
@@ -52,7 +53,6 @@ def load_sent_news():
 def save_sent_news(news_set):
     """Gönderilen haberleri diske kaydeder"""
     try:
-        # Dosya şişmesin diye son 1500 haberi sakla
         data_list = list(news_set)[-1500:]
         with open(HISTORY_FILE, "w", encoding="utf-8") as f:
             json.dump(data_list, f)
@@ -115,24 +115,58 @@ ULTRA_CLASSIFIED_HUB = [
     }
 ]
 
-# 📊 KANAL İÇİN ÇOK DİLLİ ETKİLEŞİMLİ ANKET HAVUZU
+# 📊 KANAL İÇİN DEVASA VE ZENGİNLEŞTİRİLMİŞ ÇOK DİLLİ ANKET HAVUZU (50 ADET)
 POLL_POOL = [
-    {
-        "question": "🌐 Sizce gizli askeri uydular halktan daha ne kadar saklanabilir?\n🇬🇧 How long can secret military satellites be hidden?",
-        "options": ["Çoktan ifşa oldu / Already exposed", "Hâlâ tamamen gizli / Fully secret", "Bilinmiyor / Unknown"]
-    },
-    {
-        "question": "🕵️ Deep web sızıntıları küresel dengeleri nasıl etkiler?\n🇬🇧 How do deep web leaks affect global balance?",
-        "options": ["Büyük bir uyanış / Awakening", "Dengeleri sarsar / Shakes balance", "Hiçbir şey değişmez / No change"]
-    },
-    {
-        "question": "🚀 Yapay zeka ve uzay keşifleri insanlığın sonunu mu getirecek, çağ mı atlatacak?\n🇬🇧 Will AI and space discoveries end humanity or start a new era?",
-        "options": ["Yeni bir çağ / New era 🌟", "Tehlikeli bir son / Dangerous end ⚠️", "Kararsızım / Neutral 🤖"]
-    },
-    {
-        "question": "🛰️ Dünya dışı akıllı yaşam hükümetler tarafından saklanıyor mu?\n🇬🇧 Is extraterrestrial life hidden by governments?",
-        "options": ["Kesinlikle saklanıyor / Yes 👽", "Saklanmıyor / No 🌍", "Kanıt yok / Maybe 🤔"]
-    }
+    {"id": "poll_1", "question": "🌐 Gizli askeri uydular halktan daha ne kadar saklanabilir?\n🇬🇧 How long can secret military satellites be hidden?", "options": ["Çoktan ifşa oldu / Already exposed", "Hâlâ tamamen gizli / Fully secret", "Bilinmiyor / Unknown"]},
+    {"id": "poll_2", "question": "🕵️ Deep web sızıntıları küresel dengeleri nasıl etkiler?\n🇬🇧 How do deep web leaks affect global balance?", "options": ["Büyük bir uyanış / Awakening", "Dengeleri sarsar / Shakes balance", "Hiçbir şey değişmez / No change"]},
+    {"id": "poll_3", "question": "🚀 Yapay zeka ve uzay keşifleri insanlığın sonunu mu getirecek, çağ mı atlatacak?\n🇬🇧 Will AI and space discoveries end humanity or start a new era?", "options": ["Yeni bir çağ / New era 🌟", "Tehlikeli bir son / Dangerous end ⚠️", "Kararsızım / Neutral 🤖"]},
+    {"id": "poll_4", "question": "🛰️ Dünya dışı akıllı yaşam hükümetler tarafından saklanıyor mu?\n🇬🇧 Is extraterrestrial life hidden by governments?", "options": ["Kesinlikle saklanıyor / Yes 👽", "Saklanmıyor / No 🌍", "Kanıt yok / Maybe 🤔"]},
+    {"id": "poll_5", "question": "🧠 Yapay zeka bilinç kazanırsa insanlık için en büyük tehdit ne olur?\n🇬🇧 If AI gains consciousness, what will be the biggest threat?", "options": ["Kontrolün kaybı / Loss of control", "Ekonomik çöküş / Economic collapse", "Tehdit yok / No threat"]},
+    {"id": "poll_6", "question": "⏳ Zaman yolculuğu gelecekte fiziksel olarak mümkün olacak mı?\n🇬🇧 Will physical time travel be possible in the future?", "options": ["Kesinlikle evet / Absolutely yes", "Asla mümkün değil / Never", "Sadece kuantum düzeyde / Only quantum level"]},
+    {"id": "poll_7", "question": "🌌 Evrende yalnız mıyız, yoksa galaktik bir medeniyetler federasyonu var mı?\n🇬🇧 Are we alone in the universe, or is there a galactic federation?", "options": ["Yalnızız / We are alone", "Federasyon var / Federation exists", "Bize karışmıyorlar / They avoid us"]},
+    {"id": "poll_8", "question": "💡 Küresel internet altyapısı tek bir tuşla tamamen çöktürülebilir mi?\n🇬🇧 Can the global internet infrastructure be completely collapsed with a single switch?", "options": ["Evet, çok kırılgan / Very fragile", "Asla çökmez / Impossible", "Kısmen kesilebilir / Partially"]},
+    {"id": "poll_9", "question": "🔬 Yeraltı kuantum laboratuvarlarında paralel evrenlere geçiş denendi mi?\n🇬🇧 Have parallel universe crossings been tested in underground quantum labs?", "options": ["Kesinlikle denendi / Tested", "Sadece teori / Only theory", "Büyük bir yalan / A big lie"]},
+    {"id": "poll_10", "question": "👁️ Dijital gözetim ve yüz tanıma sistemleri bireysel özgürlüğü bitirdi mi?\n🇬🇧 Has digital surveillance ended individual freedom?", "options": ["Evet, bitti / Yes, ended", "Hâlâ direniyoruz / Still resisting", "Farkında değiliz / Unaware"]},
+    {"id": "poll_11", "question": "⚡ Kablosuz enerji ve Tesla'nın kayıp buluşları gizlice kullanılıyor mu?\n🇬🇧 Are wireless energy and Tesla's lost inventions secretly in use?", "options": ["Gizlice kullanılıyor / Used secretly", "Tamamen masal / Pure fairy tale", "Araştırılıyor / Under research"]},
+    {"id": "poll_12", "question": "🧬 İnsan DNA'sına müdahale edilerek geleceğin süper insanları üretiliyor mu?\n🇬🇧 Are future super-humans being created by interfering with human DNA?", "options": ["Gizli tesislerde evet / Yes in secret labs", "Henüz erken / Too early", "İmkansız / Impossible"]},
+    {"id": "poll_13", "question": "🛸 Okyanusların en derin çukurlarında insan yapımı gizli üsler var mı?\n🇬🇧 Are there man-made secret bases in the deepest ocean trenches?", "options": ["Kesinlikle var / Absolutely yes", "Sadece doğal yaşam / Marine life", "Bilinmiyor / Unknown"]},
+    {"id": "poll_14", "question": "🔮 Süper zeka (AGI) insanlığı yönetmeye başlarsa adil bir düzen kurabilir mi?\n🇬🇧 Can AGI establish a fair order if it starts managing humanity?", "options": ["Mükemmel adalet / Perfect justice", "Diktatörlük / Tyranny", "İnsanlığı siler / Eradicate humanity"]},
+    {"id": "poll_15", "question": "🛡️ Küresel siber savaşlar nükleer savaşlardan daha büyük bir tehlike mi?\n🇬🇧 Are global cyber wars a bigger threat than nuclear wars?", "options": ["Kesinlikle daha büyük / Definitely bigger", "Nükleer daha tehlikeli / Nuclear is worse", "Eşdeğer / Equal threat"]},
+    {"id": "poll_16", "question": "🤖 Robotlar gelecekte duygusal kararlar alabilir mi?\n🇬🇧 Will robots be able to make emotional decisions in the future?", "options": ["Evet, simüle eder / Yes, simulated", "Asla hissedemez / Never feel", "Bilinç kazanırlar / Will gain consciousness"]},
+    {"id": "poll_17", "question": "🌋 Süper yanardağ patlamaları küresel uygarlığı yok edebilir mi?\n🇬🇧 Can supervolcano eruptions destroy global civilization?", "options": ["Evet, büyük tehlike / Huge danger", "Teknoloji kurtarır / Technology saves", "Düşük ihtimal / Low probability"]},
+    {"id": "poll_18", "question": "🌑 Ay'ın karanlık yüzünde gizli insan üsleri olduğu iddiaları gerçek mi?\n🇬🇧 Are claims of secret human bases on the dark side of the Moon true?", "options": ["Kesinlikle gerçek / Absolutely true", "Tamamen komplo / Pure conspiracy", "Gizli ortak üs var / Joint base"]},
+    {"id": "poll_19", "question": "🧊 Kutuplardaki buzulların altında antik uygarlıklara ait kalıntılar çıkıyor mu?\n🇬🇧 Are relics of ancient civilizations emerging from beneath polar ice?", "options": ["Evet, saklıyorlar / Yes, hidden", "Sadece bakteri / Only bacteria", "Bilimsel spekülasyon / Speculation"]},
+    {"id": "poll_20", "question": "🔋 Lityum pillerin yerini alacak nihai enerji kaynağı ne zaman bulunur?\n🇬🇧 When will the ultimate energy source replacing lithium batteries be found?", "options": ["Çok yakın / Very soon", "On yıllar sonra / Decades later", "Mümkün değil / Impossible"]},
+    {"id": "poll_21", "question": "🛰️ Alçak yörünge uydu ağları (Starlink vb.) gece gökyüzünü ve astronomiyi bitiriyor mu?\n🇬🇧 Are low Earth orbit satellite networks destroying night sky astronomy?", "options": ["Evet, büyük tehdit / Big threat", "Zararsız / Harmless", "Alternatif çözümler bulunur / Solutions found"]},
+    {"id": "poll_22", "question": "🧬 Genetik silâhlar gelecekte belirli etnik grupları hedef alabilir mi?\n🇬🇧 Can genetic weapons target specific ethnic groups in the future?", "options": ["Teknik olarak mümkün / Technically possible", "Uluslararası yasak / Banned", "Bilim kurgu / Sci-fi"]},
+    {"id": "poll_23", "question": "🧠 Beyin-bilgisayar arayüzleri (Neuralink vb.) insan hafızasını hackleyebilir mi?\n🇬🇧 Can brain-computer interfaces hack human memory?", "options": ["Evet, çok tehlikeli / Very dangerous", "Sadece tedavi amaçlı / Medical only", "Asla hacklenemez / Unhackable"]},
+    {"id": "poll_24", "question": "🏙️ Akıllı şehirler bireyleri 7/24 denetleyen birer toplama kampına mı dönüşüyor?\n🇬🇧 Are smart cities turning into concentration camps monitoring individuals 24/7?", "options": ["Kesinlikle evet / Absolutely yes", "Güvenlik için gerekli / Needed for safety", "Abartı / Exaggeration"]},
+    {"id": "poll_25", "question": "🌊 Küresel iklim krizini durdurmak için 'Geoengineering' (iklim mühendisliği) risk almaya değer mi?\n🇬🇧 Is geoengineering worth the risk to stop global climate crisis?", "options": ["Değer, başka çare yok / Worth it", "Felakete yol açar / Leads to disaster", "Doğasına bırakılmalı / Leave it natural"]},
+    {"id": "poll_26", "question": "☄️ Dünya'ya yaklaşan büyük bir asteroiti yok edebilecek nükleer savunma sistemimiz hazır mı?\n🇬🇧 Are we ready with nuclear defense systems to destroy an incoming asteroid?", "options": ["Evet, hazırız / Yes, ready", "Kısmen hazır / Partially", "Hiçbir hazırlık yok / No preparation"]},
+    {"id": "poll_27", "question": "💰 Kripto paralar ve merkeziyetsiz finans gelecekte devletlerin parasal monopolünü bitirecek mi?\n🇬🇧 Will decentralized finance end state monetary monopolies in the future?", "options": ["Kesinlikle bitirecek / Will end", "Devletler yasaklar / States will ban", "Sistemle bütünleşir / Will integrate"]},
+    {"id": "poll_28", "question": "🔬 CERN'deki parçacık hızlandırıcıları kazara bir mini karadelik oluşturabilir mi?\n🇬🇧 Can particle accelerators at CERN accidentally create a mini black hole?", "options": ["Teorik olarak evet / Theoretically yes", "İmkansız / Impossible", "Oluştu ama kapandı / Created and closed"]},
+    {"id": "poll_29", "question": "🥽 Tamamen sanal gerçeklik (Metaverse) içinde yaşamak fiziksel dünyadan kaçış mı yoksa evrim mi?\n🇬🇧 Is living in virtual reality an escape from the physical world or evolution?", "options": ["Büyük bir kaçış / Big escape", "Geleceğin evrimi / Future evolution", "Zaman kaybı / Waste of time"]},
+    {"id": "poll_30", "question": "🕳️ Karadeliklerin içi başka bir evrene açılan geçitler (Einstein-Rosen köprüsü) olabilir mi?\n🇬🇧 Can the inside of black holes be bridges to another universe?", "options": ["Oldukça muhtemel / Highly probable", "Sadece matematiksel model / Mathematical model", "Bilmiyoruz / Unknown"]},
+    {"id": "poll_31", "question": "👽 Hükümetlerin UFO dosyalarını resmi olarak açıklaması toplumsal paniğe yol açtı mı?\n🇬🇧 Did official government UFO disclosures cause social panic?", "options": ["Hiçbir panik olmadı / No panic", "İnsanlar umursamadı / People didn't care", "Zaten herkes biliyordu / Everyone knew"]},
+    {"id": "poll_32", "question": "🧪 Yapay zeka tarafından keşfedilen yeni malzemeler insanlığı on yıllar öne taşıyabilir mi?\n🇬🇧 Can new materials discovered by AI advance humanity decades ahead?", "options": ["Kesinlikle taşıyacak / Definitely will", "Abartılıyor / Exaggerated", "Riskler barındırır / Contains risks"]},
+    {"id": "poll_33", "question": "🌐 Küresel uyduların kesilmesi durumunda insanlık kaç saat içinde kaosa sürüklenir?\n🇬🇧 Within how many hours would humanity plunge into chaos if global satellites failed?", "options": ["Birkaç saat içinde / Within hours", "Birkaç gün içinde / Within days", "Dayanıklıktayız / We are resilient"]},
+    {"id": "poll_34", "question": "🏭 Otonom fabrikalar ve robot işçiler küresel işsizlik krizine yol açacak mı?\n🇬🇧 Will autonomous factories and robot workers lead to a global unemployment crisis?", "options": ["Evet, kaçınılmaz / Inevitable", "Yeni iş kolları doğar / New jobs emerge", "Devlet maaş bağlar / Universal basic income"]},
+    {"id": "poll_35", "question": "🧬 CRISPR ve gen düzenleme teknolojileri ile ölümsüzlük sınırı aşılabilir mi?\n🇬🇧 Can the limit of immortality be crossed with CRISPR and gene editing?", "options": ["Ömrü uzatır ama ölümsüzlük olmaz / Extends life", "Kesinlikle aşılır / Will be crossed", "Etik olarak engellenir / Ethically blocked"]},
+    {"id": "poll_36", "question": "📡 Uzaydan gelen gizemli hızlı radyo patlamaları (FRB) akıllı bir medeniyetin sinyali olabilir mi?\n🇬🇧 Could mysterious fast radio bursts from space be signals from an intelligent civilization?", "options": ["Oldukça yüksek ihtimal / High probability", "Doğal kozmik olay / Natural cosmic event", "Kara delik çarpışması / Black hole collision"]},
+    {"id": "poll_37", "question": "🕶️ Artırılmış gerçeklik (AR) kontakt lensler akıllı telefonların yerini tamamen alacak mı?\n🇬🇧 Will augmented reality (AR) contact lenses completely replace smartphones?", "options": ["Kesinlikle alacak / Definitely will", "Sağlığa zararlı olur / Harmful to health", "Gerek kalmaz / Unnecessary"]},
+    {"id": "poll_38", "question": "🔋 Füzyon enerjisi (Yapay Güneş) 2030'lara kadar ticari olarak hayatımıza girebilir mi?\n🇬🇧 Can fusion energy enter our lives commercially by the 2030s?", "options": ["Evet, yakındayız / Yes, close", "2050'yi bulur / Takes until 2050", "Asla başaramayız / Never achieve"]},
+    {"id": "poll_39", "question": "🗺️ Yeraltı tünel ağları ve Hyperloop sistemleri gelecekte şehirler arası ana ulaşım mı olacak?\n🇬🇧 Will underground tunnel networks and Hyperloop systems be main transit?", "options": ["Evet, çok hızlı / Yes, very fast", "Çok maliyetli / Too expensive", "Gerek yok / Unnecessary"]},
+    {"id": "poll_40", "question": "🦠 Laboratuvar sızıntısı teorileri gelecekteki biyolojik krizlerin önlenmesinde ders oldu mu?\n🇬🇧 Have lab leak theories served as a lesson to prevent future biological crises?", "options": ["Hiçbir ders alınmadı / No lessons learned", "Şeffaflık arttı / Transparency increased", "Daha da gizleniyor / Hidden more"]},
+    {"id": "poll_41", "question": "🤖 Ev tipi insansı robotlar her haneye girdiğinde insan psikolojisi nasıl etkilenir?\n🇬🇧 How will human psychology be affected when humanoid robots enter every home?", "options": ["Yalnızlık azalır / Loneliness decreases", "İnsanlar yabancılaşır / Alienation", "Bağımlılık yaratır / Addiction"]},
+    {"id": "poll_42", "question": "🔍 Deepfake teknolojisi ve yapay sesler hukuki sistemleri tamamen çökertir mi?\n🇬🇧 Will deepfake tech and AI voices completely collapse legal systems?", "options": ["Evet, kanıt kalmaz / No evidence left", "Yeni güvenlik sistemleri çıkar / New systems emerge", "Kısmen etkiler / Partially"]},
+    {"id": "poll_43", "question": "🪐 Mars'ta kurulacak ilk insan kolonisi Dünya'dan bağımsız bir cumhuriyet ilan edebilir mi?\n🇬🇧 Can the first human colony on Mars declare independence from Earth?", "options": ["Kesinlikle eder / Definitely", "Dünya'ya bağımlı kalır / Remains dependent", "Kaos çıkar / Chaos ensues"]},
+    {"id": "poll_44", "question": "🧠 İnsan bilinci tamamen bir diske (silikon çipe) aktarılabilir mi?\n🇬🇧 Can human consciousness be fully transferred to a silicon chip?", "options": ["Evet, dijital ölümsüzlük / Digital immortality", "Bilinç aktarılamaz / Consciousness cannot be copied", "Sadece kopyası olur / Just a copy"]},
+    {"id": "poll_45", "question": "⚖️ Küresel yapay zeka regülasyonları inovasyonu yavaşlatır mı yoksa insanlığı korur mu?\n🇬🇧 Do global AI regulations slow down innovation or protect humanity?", "options": ["İnovasyonu öldürür / Kills innovation", "İnsanlığı korur / Protects humanity", "Dengeyi bulur / Finds balance"]},
+    {"id": "poll_46", "question": "🌊 Denizaltı veri merkezleri ve okyanus tabanlı bulut sunucuları geleceğin standardı mı?\n🇬🇧 Are subsea data centers and ocean-based cloud servers the future standard?", "options": ["Evet, soğutma avantajı var / Great cooling", "Bakımı çok zor / Too hard to maintain", "Gereksiz lüks / Unnecessary luxury"]},
+    {"id": "poll_47", "question": "⚡ Atmosferik elektriği hasat edip evleri aydınlatmak Tesla gibi büyük ölçekte mümkün mü?\n🇬🇧 Is harvesting atmospheric electricity possible on a large scale like Tesla envisioned?", "options": ["Bilimsel olarak evet / Scientifically yes", "Fizik kurallarına aykırı / Against physics", "Deneniyor / Being tested"]},
+    {"id": "poll_48", "question": "🌀 Çoklu evren (Multiverse) teorisi matematiksel bir fantezi mi yoksa test edilebilir gerçeklik mi?\n🇬🇧 Is the Multiverse theory a mathematical fantasy or testable reality?", "options": ["Test edilebilir / Testable", "Saf fantezi / Pure fantasy", "Kuantum gerçekliği / Quantum reality"]},
+    {"id": "poll_49", "question": "🛰️ Yörünge çöplüğü (Kessler Sendromu) uzay çalışmalarını tamamen kilitleyebilir mi?\n🇬🇧 Can orbital debris (Kessler Syndrome) completely lock down space exploration?", "options": ["Evet, büyük tehlike / Huge danger", "Temizleme teknolojileri çıkar / Cleanup tech", "Düşük risk / Low risk"]},
+    {"id": "poll_50", "question": "🔮 Singularity (Tekillik) noktasına ulaşıldığında insanlık ile yapay zeka birleşecek mi?\n🇬🇧 Will humanity and AI merge when the Singularity point is reached?", "options": ["Syborg evrim kaçınılmaz / Cyborg evolution", "Yapay zeka bizi ezer / AI crushes us", "Yollar ayrılır / Paths separate"]}
 ]
 
 def send_telegram_message(text, reply_markup=None):
@@ -213,12 +247,11 @@ def check_live_news_and_intel():
                             if link_el is not None:
                                 link = link_el.text if link_el.text else link_el.get('href', "https://t.me")
                                 
-                            # Benzersiz ID oluşturma (guid öncelikli, yoksa link veya başlık)
                             news_id = guid_el.text if (guid_el is not None and guid_el.text) else (link if link != "https://t.me" else title)
                             
                             if news_id not in sent_news_ids:
                                 sent_news_ids.add(news_id)
-                                save_sent_news(sent_news_ids)  # Diske anında kaydet
+                                save_sent_news(sent_news_ids)
                                     
                                 caption = (
                                     f"⚡ <b>SINGULARITY ULTRA-CLASSIFIED INTEL</b>\n"
@@ -278,7 +311,14 @@ def background_scheduler():
                 print("🌐 Arşiv postu fırlatıldı.")
                 
             elif choice_type == "poll":
-                poll = random.choice(POLL_POOL)
+                available_polls = [p for p in POLL_POOL if p['id'] not in sent_poll_ids]
+                if not available_polls:
+                    sent_poll_ids.clear()
+                    available_polls = POLL_POOL
+                    
+                poll = random.choice(available_polls)
+                sent_poll_ids.append(poll['id'])
+                
                 send_telegram_poll(poll["question"], poll["options"])
                 print("📊 Kanal anketi fırlatıldı.")
                 
