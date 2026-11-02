@@ -10,8 +10,8 @@ from deep_translator import GoogleTranslator
 app = Flask(__name__)
 
 # ================= CONFIGURATION =================
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "SENIN_BOT_TOKENIN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "@SENIN_KANAL_KULANICI_ADIN")
+TELEGRAM_BOT_TOKEN = "9181945130:AAFS8ThEm7ZjtjjGAh4jAhko1WlEW9-yrsw"
+TELEGRAM_CHAT_ID = "-1004449764057"
 HISTORY_FILE = "sent_news_history.json"
 POLL_INTERVAL = 60  # 1 dakika
 
@@ -97,7 +97,6 @@ def extract_image(entry):
 def rss_poller():
     print("🚀 Otonom RSS Tarama Döngüsü Başlatıldı...")
     
-    # Hafızayı kontrol et, yoksa mevcut RSS'yi yükle ki tekrara düşmesin
     history = load_history()
     if not history:
         print("📥 İlk çalıştırma: Eski haberler hafızaya alınıyor...")
@@ -148,7 +147,7 @@ def rss_poller():
 def home():
     return "Autonomous Bilingual News Bot is Running Smoothly!"
 
-# Telegram'dan komut aldığında (örn: /post) tepki vermesini sağlayan uç nokta (Webhook)
+# Telegram'dan komut aldığında (örn: /post) tepki vermesini sağlayan uç nokta
 @app.route(f"/{TELEGRAM_BOT_TOKEN}", methods=["POST"])
 def telegram_webhook():
     data = request.get_json()
@@ -161,7 +160,7 @@ def telegram_webhook():
             url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
             payload = {
                 "chat_id": chat_id,
-                "text": "🤖 Bot aktif ve otonom modda çalışıyor usta!"
+                "text": "🤖 Bot aktif ve otonom modda sorunsuz çalışıyor usta!"
             }
             requests.post(url, json=payload)
             
