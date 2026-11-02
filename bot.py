@@ -1,3 +1,18 @@
+import subprocess
+import sys
+
+# Eksik kütüphaneleri otomatik yükleme mekanizması (Ayrı dosya derdi yok)
+def auto_install():
+    required_packages = ["flask", "feedparser", "requests", "gunicorn"]
+    for package in required_packages:
+        try:
+            __import__(package)
+        except ImportError:
+            print(f"'{package}' kütüphanesi yükleniyor...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+auto_install()
+
 import os
 import time
 import json
