@@ -13,9 +13,8 @@ app = Flask(__name__)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "SENIN_BOT_TOKENIN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "@SENIN_KANAL_KULANICI_ADIN")
 HISTORY_FILE = "sent_news_history.json"
-POLL_INTERVAL = 60  # Her 1 dakikada bir tarama
+POLL_INTERVAL = 60  # 1 dakika
 
-# Küresel Haber Kaynakları
 LIVE_RSS_FEEDS = [
     "https://www.aa.com.tr/tr/rss/default?cat=guncel",
     "https://www.trthaber.com/sondakika.rss",
@@ -99,7 +98,6 @@ def extract_image(entry):
 def rss_poller():
     print("🚀 Otonom RSS Tarama Döngüsü Başlatıldı...")
     
-    # İlk çalıştırmada geçmişi doldur ki eski haberleri spamlemesin
     history = load_history()
     if not history:
         print("📥 İlk çalıştırma: Eski haberler hafızaya alınıyor...")
@@ -150,10 +148,15 @@ def rss_poller():
 def home():
     return "Autonomous Bilingual News Bot is Running Smoothly!"
 
-if __name__ == "__main__":
-    # Arka plan iş parçacığını başlat
+# ================= BACKGROUND THREAD (GÜNCELLENDİ) =================
+# Procfile / Gunicorn kullanıldığında alt bloklar atlandığı için, 
+# arka plan iş parçacığını doğrudan burada başlatıyoruz:
+try:
     worker = threading.Thread(target=rss_poller, daemon=True)
     worker.start()
-    
-    # Flask sunucusunu başlat
+    print("✅ Arka plan iş parçacığı başarıyla tetiklendi.")
+except Exception as e:
+    print(f"Thread başlatma hatası: {e}")
+
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
