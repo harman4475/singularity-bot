@@ -2,23 +2,6 @@ import os
 import time
 import json
 import threading
-import subprocess
-import sys
-
-# Eksik paketleri otomatik kurma mekanizması (Harici requirements.txt derdine son)
-def ensure_packages():
-    pkgs = ["flask", "feedparser", "requests", "deep-translator"]
-    for p in pkgs:
-        try:
-            if p == "deep-translator":
-                __import__("deep_translator")
-            else:
-                __import__(p)
-        except ImportError:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", p])
-
-ensure_packages()
-
 import feedparser
 import requests
 from flask import Flask
@@ -30,9 +13,9 @@ app = Flask(__name__)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "SENIN_BOT_TOKENIN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "@SENIN_KANAL_KULANICI_ADIN")
 HISTORY_FILE = "sent_news_history.json"
-POLL_INTERVAL = 60  # 1 dakika
+POLL_INTERVAL = 60  # Her 1 dakikada bir tarama
 
-# Genişletilmiş Orijinal RSS Kaynak Listesi
+# Küresel Haber Kaynakları
 LIVE_RSS_FEEDS = [
     "https://www.aa.com.tr/tr/rss/default?cat=guncel",
     "https://www.trthaber.com/sondakika.rss",
@@ -168,7 +151,7 @@ def home():
     return "Autonomous Bilingual News Bot is Running Smoothly!"
 
 if __name__ == "__main__":
-    # Arka plan iş parçacığını güvenle başlat
+    # Arka plan iş parçacığını başlat
     worker = threading.Thread(target=rss_poller, daemon=True)
     worker.start()
     
