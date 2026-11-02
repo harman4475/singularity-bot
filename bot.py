@@ -1,7 +1,6 @@
 import subprocess
 import sys
 
-# Eksik kütüphaneleri otomatik yükleme mekanizması
 def auto_install():
     required_packages = ["flask", "feedparser", "requests", "gunicorn", "deep-translator"]
     for package in required_packages:
@@ -31,55 +30,17 @@ app = Flask(__name__)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "SENIN_BOT_TOKENIN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "@SENIN_KANAL_KULANICI_ADIN")
 HISTORY_FILE = "sent_news_history.json"
-POLL_INTERVAL = 120  # Her 2 dakikada bir tarama
+POLL_INTERVAL = 60  # 1 dakikaya indirildi
 
-# ================= GLOBAL NEWS SOURCE LIST (SADECE HABER AJANSLARI VE MEDYA) =================
 LIVE_RSS_FEEDS = [
-    # --- TÜRKİYE (Ana Haber Ajansları & Kanallar) ---
     "https://www.aa.com.tr/tr/rss/default?cat=guncel",
     "https://www.trthaber.com/sondakika.rss",
     "https://www.ntv.com.tr/son-dakika.rss",
-    "https://www.haberturk.com/rss",
-    "https://www.hurriyet.com.tr/rss/anasayfa",
-    "https://www.milliyet.com.tr/rss/rssnedir/gundem-rss",
-
-    # --- KUZEY AMERİKA (ABD - Uzay & Resmi Bilim) ---
-    "https://www.nasa.gov/news-release/feed/",
-    "https://www.space.com/home/feed/site.xml",
-
-    # --- İNGİLTERE & KÜRESEL ---
     "https://feeds.bbci.co.uk/news/world/rss.xml",
-
-    # --- KATAR / ORTA DOĞU ---
-    "https://www.aljazeera.com/xml/rss/all.xml",
-
-    # --- ALMANYA / AVRUPA ---
-    "https://rss.dw.com/rdf/rss-en-top",
-    "https://www.euractiv.com/feed/",
-
-    # --- KUZEY KUTBU / ARKTIK ---
-    "https://www.highnorthnews.com/en/rss",
-
-    # --- SİNGAPUR / GÜNEYDOĞU ASYA ---
-    "https://www.channelnewsasia.com/api/v1/rss-outlets/cna-rss",
-
-    # --- JAPONYA / UZAK DOĞU ---
-    "https://www.asahi.com/rss/asahi/news.rdf",
-
-    # --- HİNDİSTAN / GÜNEY ASYA ---
-    "https://economictimes.indiatimes.com/rssfeedsdefault.cms",
-
-    # --- LATİN AMERİKA ---
-    "https://en.mercopress.com/rss/",
-
-    # --- AFRİKA KİTASI (Kıta Geneli) ---
-    "https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf",
-
-    # --- MISIR / KUZEY AFRİKA ---
-    "https://english.ahram.org.eg/NewsAPI/5.xml"
+    "https://www.space.com/home/feed/site.xml",
+    "https://www.aljazeera.com/xml/rss/all.xml"
 ]
 
-# ================= HISTORY MANAGEMENT =================
 def load_history():
     if os.path.exists(HISTORY_FILE):
         try:
@@ -98,34 +59,22 @@ def save_history(history):
     except Exception as e:
         print(f"Geçmiş kaydedilirken hata: {e}")
 
-# ================= TRANSLATION HELPER =================
 def translate_texts(title):
     try:
-        # Basit bir tespit ile Türkçe mü yoksa yabancı dil mi anlıyoruz
-        # İngilizce ise Türkçeye çevir, Türkçe ise İngilizceye çevir
         translator_tr = GoogleTranslator(source='auto', target='tr')
         translator_en = GoogleTranslator(source='auto', target='en')
         
-        # Basitçe hem Türkçe hem İngilizce hallerini oluşturalım
-        # Eğer başlık zaten Türkçe ağırlıklıysa ingilizcesini türet, İngilizce ise Türkçesini türet.
-        # En garanti yol: Orijinal metni hem tr hem en hedefine çevirmek veya akıllıca harmanlamak.
-        
-        # Şimdilik en sağlam yöntem: Gelen metni Türkçe ve İngilizce olarak net sunmak.
         translated_tr = translator_tr.translate(title)
         translated_en = translator_en.translate(title)
-        
-        # Eğer orijinali zaten ingilizce ise translated_tr Türkçedir, translated_en İngilizcedir.
         return translated_tr, translated_en
     except Exception as e:
         print(f"Çeviri hatası: {e}")
         return title, title
 
-# ================= TELEGRAM SENDING (BILINGUAL & RESİMLİ) =================
 def send_to_telegram(title, link, image_url):
     if not image_url:
         image_url = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000&auto=format&fit=crop"
 
-    # Çift dilli başlık üretimi
     title_tr, title_en = translate_texts(title)
 
     caption = (
@@ -144,14 +93,17 @@ def send_to_telegram(title, link, image_url):
     }
     
     try:
-        response = requests.post(url, json=payload, timeout=10)
+        response = requests.post(url, json=payload, timeout=15)
+        print(f"Telegram Yanıt Kodu: {response.status_code}")
         if response.status_code != 200:
+            print(f"Telegram Hata Detayı: {response.text}")
             payload["parse_mode"] = None
-            requests.post(url, json=payload, timeout=10)
+            requests.post(url, json=payload, timeout=15)
+        else:
+            print(f"✅ Başarıyla Gönderildi: {title_tr}")
     except Exception as e:
         print(f"Telegram mesajı gönderilemedi: {e}")
 
-# ================= EXTRACT IMAGE HELPER =================
 def extract_image(entry):
     if 'media_content' in entry and entry.media_content:
         for media in entry.media_content:
@@ -171,41 +123,46 @@ def extract_image(entry):
             
     return None
 
-# ================= BACKGROUND RSS POLL LOOP =================
 def rss_poller():
     print("🌍 Küresel Anlık Çift Dilli Haber Botu Devrede (7/24 Tarama Başladı)...")
     while True:
-        history = load_history()
-        updated = False
+        try:
+            history = load_history()
+            updated = False
 
-        for feed_url in LIVE_RSS_FEEDS:
-            try:
-                feed = feedparser.parse(feed_url)
-                for entry in feed.entries[:5]:
-                    news_id = getattr(entry, 'id', None) or getattr(entry, 'link', None)
-                    title = getattr(entry, 'title', 'Başlıksız Haber')
-                    link = getattr(entry, 'link', '#')
+            for feed_url in LIVE_RSS_FEEDS:
+                print(f"Taranıyor: {feed_url}")
+                try:
+                    feed = feedparser.parse(feed_url)
+                    print(f"Kaynakta {len(feed.entries)} haber bulundu.")
+                    for entry in feed.entries[:3]:
+                        news_id = getattr(entry, 'id', None) or getattr(entry, 'link', None)
+                        title = getattr(entry, 'title', 'Başlıksız Haber')
+                        link = getattr(entry, 'link', '#')
 
-                    if not news_id:
-                        continue
+                        if not news_id:
+                            continue
 
-                    if news_id not in history:
-                        image_url = extract_image(entry)
-                        print(f"📢 Yeni Haber İşleniyor: {title}")
-                        send_to_telegram(title, link, image_url)
-                        
-                        history.append(news_id)
-                        updated = True
-                        time.sleep(2) # Çeviri ve API koruması için bekleme
-            except Exception as e:
-                print(f"RSS Tarama Hatası ({feed_url}): {e}")
+                        if news_id not in history:
+                            image_url = extract_image(entry)
+                            print(f"📢 Yeni Haber İşleniyor: {title}")
+                            send_to_telegram(title, link, image_url)
+                            
+                            history.append(news_id)
+                            updated = True
+                            time.sleep(3) 
+                except Exception as feed_err:
+                    print(f"RSS Kaynak Hatası ({feed_url}): {feed_err}")
 
-        if updated:
-            save_history(history)
+            if updated:
+                save_history(history)
 
+        except Exception as loop_err:
+            print(f"Döngü genel hatası: {loop_err}")
+
+        print(f"Tarama turu tamamlandı. {POLL_INTERVAL} saniye bekleniyor...")
         time.sleep(POLL_INTERVAL)
 
-# ================= FLASK KEEP-ALIVE ROUTE =================
 @app.route("/")
 def home():
     return "Bilingual Global News Intelligence Bot is Running 7/24!"
@@ -213,7 +170,6 @@ def home():
 def run_flask():
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
 
-# ================= MAIN ENTRYPOINT =================
 if __name__ == "__main__":
     t = threading.Thread(target=rss_poller, daemon=True)
     t.start()
