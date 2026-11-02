@@ -3,6 +3,7 @@ import time
 import json
 import random
 import threading
+from datetime import datetime
 import feedparser
 import requests
 from flask import Flask, request
@@ -14,69 +15,60 @@ app = Flask(__name__)
 TELEGRAM_BOT_TOKEN = "9068851091:AAFFpGSBNjJa3MlhtzeRiA3iKZ8aJ5ETWxE"
 TELEGRAM_CHAT_ID = "-1004449764057"
 HISTORY_FILE = "sent_news_history.json"
-POLL_INTERVAL = 30  # Döngü hızı (Saniye)
+POLL_INTERVAL = 60  # Döngü hızı (Saniye)
 
-# KÜRESEL VE KARIŞIK AKIŞ İÇİN ULUSLARARASI RSS HAVUZU
 LIVE_RSS_FEEDS = [
+    "https://www.aa.com.tr/tr/rss/default?cat=guncel",
+    "https://www.trthaber.com/sondakika.rss",
+    "https://www.ntv.com.tr/son-dakika.rss",
+    "https://www.haberturk.com/rss",
     "https://feeds.bbci.co.uk/news/world/rss.xml",
     "https://www.space.com/home/feed/site.xml",
-    "https://techcrunch.com/feed/",
-    "https://www.wired.com/feed/rss",
-    "https://rss.dw.com/rdf/rss-en-top",
     "https://www.aljazeera.com/xml/rss/all.xml",
-    "https://news.ycombinator.com/rss",
-    "https://www.technologyreview.com/feed/"
+    "https://rss.dw.com/rdf/rss-en-top"
 ]
 
-# ================= DÜZENLİ KÜRESEL ANKET & İKİLEM HAVUZU (TR ÜSTTE / EN ALTTA) =================
+# ================= GENİŞLETİLMİŞ KÜRESEL ANKET & İKİLEM HAVUZU =================
 GLOBAL_POLLS_POOL = [
     {
-        "tr": "Yapay Zeka (AGI) önümüzdeki 10 yılda senin mesleğini tamamen ortadan kaldırabilir mi?",
-        "en": "Could Artificial Intelligence (AGI) completely eliminate your profession in the next 10 years?",
-        "options_tr": ["Evet, kaçış yok", "Hayır, insan şart"],
-        "options_en": ["Yes, inevitable", "No, humans needed"]
+        "tr": "🤖 Yapay Zeka (AGI) önümüzdeki 10 yılda senin mesleğini tamamen ortadan kaldırabilir mi?",
+        "en": "🤖 Could Artificial Intelligence (AGI) completely eliminate your profession in the next 10 years?",
+        "options": ["Evet, kaçış yok / Yes, inevitable", "Hayır, insan şart / No, humans needed"]
     },
     {
-        "tr": "Mars'a tek yönlü bir koloni yolculuğu teklif edilse, dünyayı arkada bırakıp gider miydin?",
-        "en": "If offered a one-way colony trip to Mars, would you leave Earth behind and go?",
-        "options_tr": ["Hemen giderim!", "Asla, Dünya güzel"],
-        "options_en": ["I'd go right now!", "Never, Earth is home"]
+        "tr": "🚀 Mars'a tek yönlü bir koloni yolculuğu teklif edilse, dünyayı arkada bırakıp gider miydin?",
+        "en": "🚀 If offered a one-way colony trip to Mars, would you leave Earth behind and go?",
+        "options": ["Hemen giderim! / I'd go right now!", "Asla, Dünya güzel / Never, Earth is home"]
     },
     {
-        "tr": "Hafızanı bir buluta yedekleyip ölümsüzleşme şansın olsa, kabul eder miydin?",
-        "en": "If you had the chance to back up your memory to a cloud and achieve immortality, would you accept?",
-        "options_tr": ["Kesinlikle kabul ederim", "Doğal döngü bozulmamalı"],
-        "options_en": ["Definitely accept", "Nature shouldn't be altered"]
+        "tr": "🧠 Hafızanı bir buluta yedekleyip ölümsüzleşme şansın olsa, kabul eder miydin?",
+        "en": "🧠 If you had the chance to back up your memory to a cloud and achieve immortality, would you accept?",
+        "options": ["Kesinlikle kabul ederim / Definitely accept", "Doğal döngü bozulmamalı / Nature shouldn't be altered"]
     },
     {
-        "tr": "Günde sadece 3 saat uyumanı sağlayan ama ömrünü kısaltmayan bir hap olsa içer miydin?",
-        "en": "If there was a pill allowing you to sleep only 3 hours a day without shortening your life, would you take it?",
-        "options_tr": ["Günde 21 saat bana kalır!", "Risk almam, uykum kutsal"],
-        "options_en": ["21 free hours for me!", "No risks, sleep is sacred"]
+        "tr": "💊 Günde sadece 3 saat uyumanı sağlayan ama ömrünü kısaltmayan bir hap olsa içer miydin?",
+        "en": "💊 If there was a pill allowing you to sleep only 3 hours a day without shortening your life, would you take it?",
+        "options": ["Günde 21 saat bana kalır! / 21 free hours for me!", "Risk almam, uykum kutsal / No risks, sleep is sacred"]
     },
     {
-        "tr": "Tamamen dijital, gerçekçi bir sanal gerçeklik dünyasında ömrünün sonuna kadar yaşamak ister miydin?",
-        "en": "Would you want to live out the rest of your life in a completely digital, hyper-realistic virtual reality world?",
-        "options_tr": ["Hemen bağlanırım", "Gerçek acı bile tatlıdır"],
-        "options_en": ["Plug me in right now", "Real pain over fake bliss"]
+        "tr": "🕶️ Tamamen dijital, gerçekçi bir sanal gerçeklik dünyasında ömrünün sonuna kadar yaşamak ister miydin?",
+        "en": "🕶️ Would you want to live out the rest of your life in a completely digital, hyper-realistic virtual reality world?",
+        "options": ["Hemen bağlanırım / Plug me in right now", "Gerçek acı bile tatlıdır / Real pain over fake bliss"]
     },
     {
-        "tr": "Eline ömür boyu çalışmayacağın kadar para geçse ilk ne yapardın?",
-        "en": "If you suddenly got enough money to never work again, what would you do first?",
-        "options_tr": ["Dünyayı gezerim", "Yeni projeler kurarım"],
-        "options_en": ["Travel the world", "Build new projects"]
+        "tr": "💰 Eline ömür boyu çalışmayacağın kadar para geçse ilk ne yapardın?",
+        "en": "💰 If you suddenly got enough money to never work again, what would you do first?",
+        "options": ["Dünyayı gezerim / Travel the world", "Yeni projeler kurarım / Build new projects"]
     },
     {
-        "tr": "Yapay zeka kritik bir suç işlediğinde, ceza kod yazana mı yoksa yapay zekanın kendisine mi kesilmeli?",
-        "en": "When an AI commits a critical crime, should the punishment go to the developer or the AI itself?",
-        "options_tr": ["Kod yazana kesilmeli", "Yapay zekanın kendisine"],
-        "options_en": ["To the developer", "To the AI itself"]
+        "tr": "⚖️ Yapay zeka kritik bir suç işlediğinde, ceza kod yazana mı yoksa yapay zekanın kendisine mi kesilmeli?",
+        "en": "⚖️ When an AI commits a critical crime, should the punishment go to the developer or the AI itself?",
+        "options": ["Kod yazana / To the developer", "Yapay zekaya / To the AI"]
     },
     {
-        "tr": "İnsanlık için en büyük varoluşsal tehdit hangisidir?",
-        "en": "What is the greatest existential threat to humanity?",
-        "options_tr": ["Kontrolsüz Yapay Zeka", "İklim Krizi"],
-        "options_en": ["Rogue AI", "Climate Crisis"]
+        "tr": "🌐 İnsanlık için en büyük varoluşsal tehdit hangisidir?",
+        "en": "🌐 What is the greatest existential threat to humanity?",
+        "options": ["Kontrolsüz Yapay Zeka / Rogue AI", "İklim Krizi / Climate Crisis"]
     }
 ]
 
@@ -114,11 +106,13 @@ def send_to_telegram(title, link, image_url):
         if res_en: title_en = res_en
     except: pass
 
-    # Çift dilli tek mesaj formatı
+    # Türkçe ve İngilizce arasına boş satırlar ve çizgiler eklendi
     caption = (
-        f"🚨 **SINGULARITY HUB // GLOBAL INTEL**\n\n"
+        f"🚨 **SINGULARITY HUB // INTEL**\n\n"
         f"🇹🇷 **{title_tr}**\n\n"
+        f"-------------------------------------\n\n"
         f"🇬🇧 **{title_en}**\n\n"
+        f"-------------------------------------\n\n"
         f"🔗 [Kaynağa Git / Source Link]({link})"
     )
     
@@ -141,32 +135,27 @@ def send_to_telegram(title, link, image_url):
 def send_poll_to_telegram():
     poll = random.choice(GLOBAL_POLLS_POOL)
     
-    # Soru kısmı alt alta düzenli
-    question_text = (
-        f"📊 KÜRESEL ANKET / GLOBAL POLL\n\n"
+    # Anket metinleri alt alta, aralarında boşluk bırakılacak şekilde düzenlendi
+    caption = (
+        f"📊 **KÜRESEL ANKET / GLOBAL POLL**\n\n"
         f"🇹🇷 {poll['tr']}\n\n"
+        f"-------------------------------------\n\n"
         f"🇬🇧 {poll['en']}\n\n"
-        f"👇 Seçeneğini seç ve diğerlerinin oyunu gör!\n"
-        f"👇 Vote & see results!"
+        f"-------------------------------------\n\n"
+        f"👇 *Seçeneğini seç ve diğerlerinin oyunu gör! / Vote & see results!*"
     )
-    
-    # Şıklar TR ve EN uyumlu şekilde alt alta/çift dilli
-    options = [
-        f"{poll['options_tr'][0]} / {poll['options_en'][0]}",
-        f"{poll['options_tr'][1]} / {poll['options_en'][1]}"
-    ]
     
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPoll"
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
-        "question": question_text[:300],
-        "options": options,
+        "question": caption[:300],
+        "options": poll["options"],
         "is_anonymous": False
     }
     
     try:
         requests.post(url, json=payload, timeout=15)
-        print("📊 Düzenli ve çift dilli küresel anket kanala gönderildi.")
+        print("📊 Küresel anket başarıyla kanala gönderildi.")
     except Exception as e:
         print(f"Poll send error: {e}")
 
@@ -184,37 +173,52 @@ def extract_image(entry):
     return None
 
 def rss_poller():
-    print("🚀 Singularity Hub Küresel Karışık Akış Motoru Başlatıldı...")
+    print("🚀 Singularity Hub Otonom Tarama ve Küresel Akış Başlatıldı...")
     
     history = load_history()
     if not history:
+        print("📥 İlk çalıştırma: Eski haberler hafızaya alınıyor...")
         for feed_url in LIVE_RSS_FEEDS:
             try:
                 feed = feedparser.parse(feed_url)
-                for entry in feed.entries[:5]:
+                for entry in feed.entries[:2]:
                     nid = getattr(entry, 'id', None) or getattr(entry, 'link', None)
                     if nid: history.append(nid)
             except: pass
         save_history(history)
 
-    counter = 0
+    # Anketlerin aynı saat diliminde üst üste tetiklenmesini önlemek için takip değişkeni
+    last_poll_date_hour = ""
+
     while True:
         try:
             history = load_history()
             updated = False
 
-            counter += 1
-            if counter % 3 == 0:
-                send_poll_to_telegram()
-                time.sleep(10)
+            # --- BELİRLİ SAATLERDE ANKET KONTROLÜ (06:00, 12:00, 18:00, 00:00) ---
+            now = datetime.now()
+            current_hour = now.hour
+            current_date_str = now.strftime("%Y-%m-%d")
+            
+            # Hedef saatler: 6, 12, 18, 0 (Gece yarısı)
+            target_hours = [0, 6, 12, 18]
+            
+            if current_hour in target_hours:
+                # Gün ve saati birleştirerek bu saat diliminde anketin sadece 1 kez atılmasını sağlıyoruz
+                time_slot_key = f"{current_date_str}-{current_hour}"
+                if last_poll_date_hour != time_slot_key:
+                    send_poll_to_telegram()
+                    last_poll_date_hour = time_slot_key
+                    time.sleep(10)
 
+            # --- RSS HABER TARAMA DÖNGÜSÜ ---
             shuffled_feeds = list(LIVE_RSS_FEEDS)
             random.shuffle(shuffled_feeds)
 
             for feed_url in shuffled_feeds:
                 try:
                     feed = feedparser.parse(feed_url)
-                    for entry in feed.entries[:5]:
+                    for entry in feed.entries[:2]:
                         news_id = getattr(entry, 'id', None) or getattr(entry, 'link', None)
                         title = getattr(entry, 'title', 'Başlıksız')
                         link = getattr(entry, 'link', '#')
@@ -223,11 +227,11 @@ def rss_poller():
 
                         if news_id not in history:
                             image_url = extract_image(entry)
-                            print(f"📢 Yeni Küresel İstihbarat: {title}")
+                            print(f"📢 Yeni İstihbarat Yakalandı: {title}")
                             send_to_telegram(title, link, image_url)
                             history.append(news_id)
                             updated = True
-                            time.sleep(12)
+                            time.sleep(15) # Postlar arası spam koruması
                 except Exception as feed_err:
                     print(f"Feed error ({feed_url}): {feed_err}")
 
@@ -241,7 +245,7 @@ def rss_poller():
 
 @app.route("/")
 def home():
-    return "Singularity Hub Global Mixed Feed is Live!"
+    return "Singularity Hub (Bilingual Intelligence & Polls Feed) is Live!"
 
 @app.route(f"/{TELEGRAM_BOT_TOKEN}", methods=["POST"])
 def telegram_webhook():
@@ -255,7 +259,7 @@ def telegram_webhook():
             url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
             payload = {
                 "chat_id": chat_id,
-                "text": "🤖 Singularity Hub Küresel Karışık Akış ve Düzenli Anket Modunda Aktif!"
+                "text": "🤖 Singularity Hub Otonom Modda, Çift Dilli Akış ve Küresel Radar Sistemiyle Aktif!"
             }
             requests.post(url, json=payload)
             
@@ -265,7 +269,7 @@ def telegram_webhook():
 try:
     worker = threading.Thread(target=rss_poller, daemon=True)
     worker.start()
-    print("✅ Arka plan iş parçacığı başlatıldı.")
+    print("✅ Arka plan iş parçacığı ve otonom akış motoru tetiklendi.")
 except Exception as e:
     print(f"Thread başlatma hatası: {e}")
 
