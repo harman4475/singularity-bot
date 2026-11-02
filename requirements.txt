@@ -1,2 +1,5 @@
-python-telegram-bot==21.1.1
-Flask==3.0.2
+flask
+feedparser
+requests
+deep-translator
+gunicorn
