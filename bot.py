@@ -48,15 +48,24 @@ def send_to_telegram(title, link, image_url):
     if not image_url:
         image_url = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000&auto=format&fit=crop"
 
+    # Güvenli ve garantili çeviri mekanizması
+    title_tr = title
+    title_en = title
     try:
-        translator_tr = GoogleTranslator(source='auto', target='tr')
-        translator_en = GoogleTranslator(source='auto', target='en')
-        title_tr = translator_tr.translate(title)
-        title_en = translator_en.translate(title)
+        translated_tr_obj = GoogleTranslator(source='auto', target='tr')
+        res_tr = translated_tr_obj.translate(title)
+        if res_tr:
+            title_tr = res_tr
     except Exception as e:
-        print(f"Translation error: {e}")
-        title_tr = title
-        title_en = title
+        print(f"TR Translation error: {e}")
+
+    try:
+        translated_en_obj = GoogleTranslator(source='auto', target='en')
+        res_en = translated_en_obj.translate(title)
+        if res_en:
+            title_en = res_en
+    except Exception as e:
+        print(f"EN Translation error: {e}")
 
     caption = (
         f"🚨 **SON DAKİKA / BREAKING NEWS**\n\n"
