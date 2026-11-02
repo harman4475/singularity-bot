@@ -106,7 +106,7 @@ def send_to_telegram(title, link, image_url):
         if res_en: title_en = res_en
     except: pass
 
-    # Türkçe ve İngilizce arasına boş satırlar ve çizgiler eklendi
+    # Haberler için Türkçe ve İngilizceyi araya boşluk koyarak düzenli tutuyoruz
     caption = (
         f"🚨 **SINGULARITY HUB // INTEL**\n\n"
         f"🇹🇷 **{title_tr}**\n\n"
@@ -135,27 +135,25 @@ def send_to_telegram(title, link, image_url):
 def send_poll_to_telegram():
     poll = random.choice(GLOBAL_POLLS_POOL)
     
-    # Anket metinleri alt alta, aralarında boşluk bırakılacak şekilde düzenlendi
-    caption = (
-        f"📊 **KÜRESEL ANKET / GLOBAL POLL**\n\n"
+    # Telegram anketlerinde karakter sınırı ve dikey okunabilirlik için net alt alta yapı
+    poll_text = (
+        f"📊 KÜRESEL ANKET / GLOBAL POLL\n\n"
         f"🇹🇷 {poll['tr']}\n\n"
-        f"-------------------------------------\n\n"
-        f"🇬🇧 {poll['en']}\n\n"
-        f"-------------------------------------\n\n"
-        f"👇 *Seçeneğini seç ve diğerlerinin oyunu gör! / Vote & see results!*"
+        f"───────────────────\n\n"
+        f"🇬🇧 {poll['en']}"
     )
     
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPoll"
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
-        "question": caption[:300],
+        "question": poll_text[:300],  # Telegram soru sınırı max 300 karakterdir
         "options": poll["options"],
         "is_anonymous": False
     }
     
     try:
-        requests.post(url, json=payload, timeout=15)
-        print("📊 Küresel anket başarıyla kanala gönderildi.")
+        resp = requests.post(url, json=payload, timeout=15)
+        print("📊 Küresel anket başarıyla kanala gönderildi:", resp.status_code)
     except Exception as e:
         print(f"Poll send error: {e}")
 
@@ -187,7 +185,6 @@ def rss_poller():
             except: pass
         save_history(history)
 
-    # Anketlerin aynı saat diliminde üst üste tetiklenmesini önlemek için takip değişkeni
     last_poll_date_hour = ""
 
     while True:
@@ -200,11 +197,9 @@ def rss_poller():
             current_hour = now.hour
             current_date_str = now.strftime("%Y-%m-%d")
             
-            # Hedef saatler: 6, 12, 18, 0 (Gece yarısı)
             target_hours = [0, 6, 12, 18]
             
             if current_hour in target_hours:
-                # Gün ve saati birleştirerek bu saat diliminde anketin sadece 1 kez atılmasını sağlıyoruz
                 time_slot_key = f"{current_date_str}-{current_hour}"
                 if last_poll_date_hour != time_slot_key:
                     send_poll_to_telegram()
@@ -231,7 +226,7 @@ def rss_poller():
                             send_to_telegram(title, link, image_url)
                             history.append(news_id)
                             updated = True
-                            time.sleep(15) # Postlar arası spam koruması
+                            time.sleep(15)
                 except Exception as feed_err:
                     print(f"Feed error ({feed_url}): {feed_err}")
 
