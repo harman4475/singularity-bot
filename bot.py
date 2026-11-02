@@ -71,7 +71,6 @@ def load_history():
     return []
 
 def save_history(history):
-    # Bellek şişmeshn diye son 1000 haberi sakla
     if len(history) > 1000:
         history = history[-1000:]
     try:
@@ -82,7 +81,6 @@ def save_history(history):
 
 # ================= TELEGRAM SENDING (RESİMLİ) =================
 def send_to_telegram(title, link, image_url):
-    # Eğer haberde görsel yoksa varsayılan şık bir küresel haber görseli kullan
     if not image_url:
         image_url = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000&auto=format&fit=crop"
 
@@ -99,7 +97,6 @@ def send_to_telegram(title, link, image_url):
     try:
         response = requests.post(url, json=payload, timeout=10)
         if response.status_code != 200:
-            # Markdown hatası olma ihtimaline karşı düz metin dene
             payload["parse_mode"] = None
             requests.post(url, json=payload, timeout=10)
     except Exception as e:
@@ -107,7 +104,6 @@ def send_to_telegram(title, link, image_url):
 
 # ================= EXTRACT IMAGE HELPER =================
 def extract_image(entry):
-    # RSS içindeki medya eklerini veya HTML taglerini tara
     if 'media_content' in entry and entry.media_content:
         for media in entry.media_content:
             if 'url' in media:
@@ -136,7 +132,7 @@ def rss_poller():
         for feed_url in LIVE_RSS_FEEDS:
             try:
                 feed = feedparser.parse(feed_url)
-                for entry in feed.entries[:5]: # Her kaynağın en son 5 haberine bak
+                for entry in feed.entries[:5]:
                     news_id = getattr(entry, 'id', None) or getattr(entry, 'link', None)
                     title = getattr(entry, 'title', 'Başlıksız Haber')
                     link = getattr(entry, 'link', '#')
@@ -145,15 +141,13 @@ def rss_poller():
                         continue
 
                     if news_id not in history:
-                        # Yeni haber yakalandı! Görselini ayıkla
                         image_url = extract_image(entry)
-                        
                         print(f"📢 Yeni Haber Paylaşılıyor: {title}")
                         send_to_telegram(title, link, image_url)
                         
                         history.append(news_id)
                         updated = True
-                        time.sleep(1.5) # Telegram API flood koruması
+                        time.sleep(1.5)
             except Exception as e:
                 print(f"RSS Tarama Hatası ({feed_url}): {e}")
 
@@ -172,9 +166,6 @@ def run_flask():
 
 # ================= MAIN ENTRYPOINT =================
 if __name__ == "__main__":
-    # Arka plan tarama iş parçacığını başlat
     t = threading.Thread(target=rss_poller, daemon=True)
     t.start()
-
-    # Render/Flask sunucusunu ayağa kaldır (Keep-Alive için)
     run_flask()
