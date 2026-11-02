@@ -106,7 +106,6 @@ def send_to_telegram(title, link, image_url):
         if res_en: title_en = res_en
     except: pass
 
-    # Haberler için Türkçe ve İngilizceyi araya boşluk koyarak düzenli tutuyoruz
     caption = (
         f"🚨 **SINGULARITY HUB // INTEL**\n\n"
         f"🇹🇷 **{title_tr}**\n\n"
@@ -135,7 +134,6 @@ def send_to_telegram(title, link, image_url):
 def send_poll_to_telegram():
     poll = random.choice(GLOBAL_POLLS_POOL)
     
-    # Telegram anketlerinde karakter sınırı ve dikey okunabilirlik için net alt alta yapı
     poll_text = (
         f"📊 KÜRESEL ANKET / GLOBAL POLL\n\n"
         f"🇹🇷 {poll['tr']}\n\n"
@@ -146,7 +144,7 @@ def send_poll_to_telegram():
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPoll"
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
-        "question": poll_text[:300],  # Telegram soru sınırı max 300 karakterdir
+        "question": poll_text[:300],  
         "options": poll["options"],
         "is_anonymous": False
     }
@@ -241,6 +239,11 @@ def rss_poller():
 @app.route("/")
 def home():
     return "Singularity Hub (Bilingual Intelligence & Polls Feed) is Live!"
+
+# --- UPTİMEROBOT İÇİN EKLENEN SAĞLIK KONTROLÜ ROTASI ---
+@app.route("/health")
+def health_check():
+    return "OK", 200
 
 @app.route(f"/{TELEGRAM_BOT_TOKEN}", methods=["POST"])
 def telegram_webhook():
