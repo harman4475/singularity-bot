@@ -10,7 +10,7 @@ from deep_translator import GoogleTranslator
 app = Flask(__name__)
 
 # ================= CONFIGURATION =================
-TELEGRAM_BOT_TOKEN = "9181945130:AAFS8ThEm7ZjtjjGAh4jAhko1WlEW9-yrsw"
+TELEGRAM_BOT_TOKEN = "9068851091:AAFFpGSBNjJa3MlhtzeRiA3iKZ8aJ5ETWxE"
 TELEGRAM_CHAT_ID = "-1004449764057"
 HISTORY_FILE = "sent_news_history.json"
 POLL_INTERVAL = 60  # 1 dakika
