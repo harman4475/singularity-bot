@@ -4,7 +4,7 @@ import json
 import threading
 import feedparser
 import requests
-from flask import Flask
+from flask import Flask, request
 from deep_translator import GoogleTranslator
 
 app = Flask(__name__)
@@ -36,8 +36,8 @@ def load_history():
     return []
 
 def save_history(history):
-    if len(history) > 1500:
-        history = history[-1500:]
+    if len(history) > 2000:
+        history = history[-2000:]
     try:
         with open(HISTORY_FILE, "w", encoding="utf-8") as f:
             json.dump(history, f, ensure_ascii=False, indent=2)
@@ -75,7 +75,6 @@ def send_to_telegram(title, link, image_url):
     
     try:
         resp = requests.post(url, json=payload, timeout=15)
-        print(f"Telegram Status: {resp.status_code}")
         if resp.status_code != 200:
             payload["parse_mode"] = None
             requests.post(url, json=payload, timeout=15)
@@ -98,6 +97,7 @@ def extract_image(entry):
 def rss_poller():
     print("🚀 Otonom RSS Tarama Döngüsü Başlatıldı...")
     
+    # Hafızayı kontrol et, yoksa mevcut RSS'yi yükle ki tekrara düşmesin
     history = load_history()
     if not history:
         print("📥 İlk çalıştırma: Eski haberler hafızaya alınıyor...")
@@ -148,9 +148,26 @@ def rss_poller():
 def home():
     return "Autonomous Bilingual News Bot is Running Smoothly!"
 
-# ================= BACKGROUND THREAD (GÜNCELLENDİ) =================
-# Procfile / Gunicorn kullanıldığında alt bloklar atlandığı için, 
-# arka plan iş parçacığını doğrudan burada başlatıyoruz:
+# Telegram'dan komut aldığında (örn: /post) tepki vermesini sağlayan uç nokta (Webhook)
+@app.route(f"/{TELEGRAM_BOT_TOKEN}", methods=["POST"])
+def telegram_webhook():
+    data = request.get_json()
+    if data and "message" in data:
+        msg = data["message"]
+        chat_id = msg["chat"]["id"]
+        text = msg.get("text", "")
+        
+        if text.startswith("/post"):
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+            payload = {
+                "chat_id": chat_id,
+                "text": "🤖 Bot aktif ve otonom modda çalışıyor usta!"
+            }
+            requests.post(url, json=payload)
+            
+    return "OK", 200
+
+# ================= BACKGROUND THREAD =================
 try:
     worker = threading.Thread(target=rss_poller, daemon=True)
     worker.start()
