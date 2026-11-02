@@ -14,17 +14,18 @@ app = Flask(__name__)
 TELEGRAM_BOT_TOKEN = "9068851091:AAFFpGSBNjJa3MlhtzeRiA3iKZ8aJ5ETWxE"
 TELEGRAM_CHAT_ID = "-1004449764057"
 HISTORY_FILE = "sent_news_history.json"
-POLL_INTERVAL = 60  # Döngü hızı (Saniye)
+POLL_INTERVAL = 30  # Döngü hızı (Saniye)
 
+# KÜRESEL VE KARIŞIK AKIŞ İÇİN ULUSLARARASI RSS HAVUZU
 LIVE_RSS_FEEDS = [
-    "https://www.aa.com.tr/tr/rss/default?cat=guncel",
-    "https://www.trthaber.com/sondakika.rss",
-    "https://www.ntv.com.tr/son-dakika.rss",
-    "https://www.haberturk.com/rss",
     "https://feeds.bbci.co.uk/news/world/rss.xml",
     "https://www.space.com/home/feed/site.xml",
+    "https://techcrunch.com/feed/",
+    "https://www.wired.com/feed/rss",
+    "https://rss.dw.com/rdf/rss-en-top",
     "https://www.aljazeera.com/xml/rss/all.xml",
-    "https://rss.dw.com/rdf/rss-en-top"
+    "https://news.ycombinator.com/rss",
+    "https://www.technologyreview.com/feed/"
 ]
 
 # ================= GENİŞLETİLMİŞ KÜRESEL ANKET & İKİLEM HAVUZU =================
@@ -81,6 +82,7 @@ def load_history():
     return []
 
 def save_history(history):
+    # Hafızanın şişmesini önlemek için son 3000 kayıt tutulur
     if len(history) > 3000:
         history = history[-3000:]
     try:
@@ -90,7 +92,6 @@ def save_history(history):
         print(f"History save error: {e}")
 
 def send_to_telegram(title, link, image_url):
-    # Görsel kuralı: Görsel yoksa en üst düzey teknoloji/istihbarat temalı varsayılan yüksek kaliteli görsel kullanılır
     if not image_url:
         image_url = "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop"
 
@@ -106,9 +107,9 @@ def send_to_telegram(title, link, image_url):
         if res_en: title_en = res_en
     except: pass
 
-    # Çift dilli tek mesaj formatı (🇹🇷 / 🇬🇧)
+    # Çift dilli tek mesaj formatı
     caption = (
-        f"🚨 **SINGULARITY HUB // INTEL**\n\n"
+        f"🚨 **SINGULARITY HUB // GLOBAL INTEL**\n\n"
         f"🇹🇷 **{title_tr}**\n\n"
         f"🇬🇧 **{title_en}**\n\n"
         f"🔗 [Kaynağa Git / Source Link]({link})"
@@ -168,15 +169,15 @@ def extract_image(entry):
     return None
 
 def rss_poller():
-    print("🚀 Singularity Hub Otonom Tarama ve Küresel Akış Başlatıldı...")
+    print("🚀 Singularity Hub Küresel Karışık Akış Motoru Başlatıldı...")
     
     history = load_history()
+    # İlk çalıştırmada geçmiş boşsa mevcut başlıkları history'ye ekleyip patinaj yapmasını önlüyoruz
     if not history:
-        print("📥 İlk çalıştırma: Eski haberler hafızaya alınıyor...")
         for feed_url in LIVE_RSS_FEEDS:
             try:
                 feed = feedparser.parse(feed_url)
-                for entry in feed.entries[:2]:
+                for entry in feed.entries[:5]:
                     nid = getattr(entry, 'id', None) or getattr(entry, 'link', None)
                     if nid: history.append(nid)
             except: pass
@@ -188,20 +189,20 @@ def rss_poller():
             history = load_history()
             updated = False
 
-            # Belirli periyotlarda interaktif anket fırlatıyoruz
             counter += 1
-            if counter % 4 == 0:
+            if counter % 3 == 0:
                 send_poll_to_telegram()
                 time.sleep(10)
 
-            # Kaynakları karıştırarak adil ve akışkan tarama yapıyoruz
+            # Kaynakları tamamen rastgele sırayla tarayarak karma akış sağlıyoruz
             shuffled_feeds = list(LIVE_RSS_FEEDS)
             random.shuffle(shuffled_feeds)
 
             for feed_url in shuffled_feeds:
                 try:
                     feed = feedparser.parse(feed_url)
-                    for entry in feed.entries[:2]:
+                    # Her kaynaktan daha fazla içeriği tarayarak akışın kesilmesini engelliyoruz
+                    for entry in feed.entries[:5]:
                         news_id = getattr(entry, 'id', None) or getattr(entry, 'link', None)
                         title = getattr(entry, 'title', 'Başlıksız')
                         link = getattr(entry, 'link', '#')
@@ -210,11 +211,11 @@ def rss_poller():
 
                         if news_id not in history:
                             image_url = extract_image(entry)
-                            print(f"📢 Yeni İstihbarat Yakalandı: {title}")
+                            print(f"📢 Yeni Küresel İstihbarat: {title}")
                             send_to_telegram(title, link, image_url)
                             history.append(news_id)
                             updated = True
-                            time.sleep(15) # Postlar arasına nefes alma süresi koyarak spam engellenir
+                            time.sleep(12) # Akışın düzenli akması için bekleme süresi
                 except Exception as feed_err:
                     print(f"Feed error ({feed_url}): {feed_err}")
 
@@ -228,7 +229,7 @@ def rss_poller():
 
 @app.route("/")
 def home():
-    return "Singularity Hub (Bilingual Intelligence & Polls Feed) is Live!"
+    return "Singularity Hub Global Mixed Feed is Live!"
 
 @app.route(f"/{TELEGRAM_BOT_TOKEN}", methods=["POST"])
 def telegram_webhook():
@@ -242,7 +243,7 @@ def telegram_webhook():
             url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
             payload = {
                 "chat_id": chat_id,
-                "text": "🤖 Singularity Hub Otonom Modda, Çift Dilli Akış ve Küresel Radar Sistemiyle Aktif!"
+                "text": "🤖 Singularity Hub Küresel Karışık Akış Modunda Aktif!"
             }
             requests.post(url, json=payload)
             
@@ -252,7 +253,7 @@ def telegram_webhook():
 try:
     worker = threading.Thread(target=rss_poller, daemon=True)
     worker.start()
-    print("✅ Arka plan iş parçacığı ve otonom akış motoru tetiklendi.")
+    print("✅ Arka plan iş parçacığı başlatıldı.")
 except Exception as e:
     print(f"Thread başlatma hatası: {e}")
 
