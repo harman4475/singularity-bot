@@ -1,12 +1,15 @@
 import subprocess
 import sys
 
-# Eksik kütüphaneleri otomatik yükleme mekanizması (Ayrı dosya derdi yok)
+# Eksik kütüphaneleri otomatik yükleme mekanizması
 def auto_install():
-    required_packages = ["flask", "feedparser", "requests", "gunicorn"]
+    required_packages = ["flask", "feedparser", "requests", "gunicorn", "deep-translator"]
     for package in required_packages:
         try:
-            __import__(package)
+            if package == "deep-translator":
+                __import__("deep_translator")
+            else:
+                __import__(package)
         except ImportError:
             print(f"'{package}' kütüphanesi yükleniyor...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", package])
@@ -20,6 +23,7 @@ import threading
 import feedparser
 import requests
 from flask import Flask
+from deep_translator import GoogleTranslator
 
 app = Flask(__name__)
 
@@ -94,12 +98,42 @@ def save_history(history):
     except Exception as e:
         print(f"Geçmiş kaydedilirken hata: {e}")
 
-# ================= TELEGRAM SENDING (RESİMLİ) =================
+# ================= TRANSLATION HELPER =================
+def translate_texts(title):
+    try:
+        # Basit bir tespit ile Türkçe mü yoksa yabancı dil mi anlıyoruz
+        # İngilizce ise Türkçeye çevir, Türkçe ise İngilizceye çevir
+        translator_tr = GoogleTranslator(source='auto', target='tr')
+        translator_en = GoogleTranslator(source='auto', target='en')
+        
+        # Basitçe hem Türkçe hem İngilizce hallerini oluşturalım
+        # Eğer başlık zaten Türkçe ağırlıklıysa ingilizcesini türet, İngilizce ise Türkçesini türet.
+        # En garanti yol: Orijinal metni hem tr hem en hedefine çevirmek veya akıllıca harmanlamak.
+        
+        # Şimdilik en sağlam yöntem: Gelen metni Türkçe ve İngilizce olarak net sunmak.
+        translated_tr = translator_tr.translate(title)
+        translated_en = translator_en.translate(title)
+        
+        # Eğer orijinali zaten ingilizce ise translated_tr Türkçedir, translated_en İngilizcedir.
+        return translated_tr, translated_en
+    except Exception as e:
+        print(f"Çeviri hatası: {e}")
+        return title, title
+
+# ================= TELEGRAM SENDING (BILINGUAL & RESİMLİ) =================
 def send_to_telegram(title, link, image_url):
     if not image_url:
         image_url = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000&auto=format&fit=crop"
 
-    caption = f"🚨 **SON DAKİKA / HABER**\n\n🔹 **{title}**\n\n🔗 [Habere Git]({link})"
+    # Çift dilli başlık üretimi
+    title_tr, title_en = translate_texts(title)
+
+    caption = (
+        f"🚨 **SON DAKİKA / BREAKING NEWS**\n\n"
+        f"🇹🇷 **{title_tr}**\n\n"
+        f"🇬🇧 **{title_en}**\n\n"
+        f"🔗 [Habere Git / Read More]({link})"
+    )
     
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
     payload = {
@@ -139,7 +173,7 @@ def extract_image(entry):
 
 # ================= BACKGROUND RSS POLL LOOP =================
 def rss_poller():
-    print("🌍 Küresel Anlık Haber Botu Devrede (7/24 Tarama Başladı)...")
+    print("🌍 Küresel Anlık Çift Dilli Haber Botu Devrede (7/24 Tarama Başladı)...")
     while True:
         history = load_history()
         updated = False
@@ -157,12 +191,12 @@ def rss_poller():
 
                     if news_id not in history:
                         image_url = extract_image(entry)
-                        print(f"📢 Yeni Haber Paylaşılıyor: {title}")
+                        print(f"📢 Yeni Haber İşleniyor: {title}")
                         send_to_telegram(title, link, image_url)
                         
                         history.append(news_id)
                         updated = True
-                        time.sleep(1.5)
+                        time.sleep(2) # Çeviri ve API koruması için bekleme
             except Exception as e:
                 print(f"RSS Tarama Hatası ({feed_url}): {e}")
 
@@ -174,7 +208,7 @@ def rss_poller():
 # ================= FLASK KEEP-ALIVE ROUTE =================
 @app.route("/")
 def home():
-    return "Global News Intelligence Bot is Running 7/24!"
+    return "Bilingual Global News Intelligence Bot is Running 7/24!"
 
 def run_flask():
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
