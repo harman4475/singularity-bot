@@ -1,88 +1,249 @@
 import os
-import threading
 import time
-from datetime import datetime, timedelta
-import requests
+import json
+import random
+import threading
+from datetime import datetime
 import feedparser
-from bs4 import BeautifulSoup
+import requests
 from flask import Flask, request
 from deep_translator import GoogleTranslator
 
-# ==================== CONFIGURATION ====================
-TELEGRAM_BOT_TOKEN = "7668661293:AAHqp14Jm2bU161k20J31k7faWd"
-TELEGRAM_CHANNEL_ID = "-1002447664857"
-TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-SENT_XML_PATH = "sent_html_history.json"
-POLL_INTERVAL = 88  # 88 saniye (Hızlı Saniye)
-# =======================================================
-
 app = Flask(__name__)
 
-# --- SAĞLIK KONTROLÜ (UPTIMEROBOT İÇİN HAYATİ) ---
-@app.route("/health")
-def health_check():
-    return "OK", 200
+# ================= CONFIGURATION =================
+TELEGRAM_BOT_TOKEN = "9068851091:AAFFpGSBNjJa3MlhtzeRiA3iKZ8aJ5ETWxE"
+TELEGRAM_CHAT_ID = "-1004449764057"
+HISTORY_FILE = "sent_news_history.json"
+POLL_INTERVAL = 60  # Döngü hızı (Saniye)
+
+LIVE_RSS_FEEDS = [
+    "https://www.aa.com.tr/tr/rss/default?cat=guncel",
+    "https://www.trthaber.com/sondakika.rss",
+    "https://www.ntv.com.tr/son-dakika.rss",
+    "https://www.haberturk.com/rss",
+    "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://www.space.com/home/feed/site.xml",
+    "https://www.aljazeera.com/xml/rss/all.xml",
+    "https://rss.dw.com/rdf/rss-en-top"
+]
+
+# ================= GENİŞLETİLMİŞ KÜRESEL ANKET & İKİLEM HAVUZU =================
+GLOBAL_POLLS_POOL = [
+    {
+        "tr": "🤖 Yapay Zeka (AGI) önümüzdeki 10 yılda senin mesleğini tamamen ortadan kaldırabilir mi?",
+        "en": "🤖 Could Artificial Intelligence (AGI) completely eliminate your profession in the next 10 years?",
+        "options": ["Evet, kaçış yok / Yes, inevitable", "Hayır, insan şart / No, humans needed"]
+    },
+    {
+        "tr": "🚀 Mars'a tek yönlü bir koloni yolculuğu teklif edilse, dünyayı arkada bırakıp gider miydin?",
+        "en": "🚀 If offered a one-way colony trip to Mars, would you leave Earth behind and go?",
+        "options": ["Hemen giderim! / I'd go right now!", "Asla, Dünya güzel / Never, Earth is home"]
+    },
+    {
+        "tr": "🧠 Hafızanı bir buluta yedekleyip ölümsüzleşme şansın olsa, kabul eder miydin?",
+        "en": "🧠 If you had the chance to back up your memory to a cloud and achieve immortality, would you accept?",
+        "options": ["Kesinlikle kabul ederim / Definitely accept", "Doğal döngü bozulmamalı / Nature shouldn't be altered"]
+    },
+    {
+        "tr": "💊 Günde sadece 3 saat uyumanı sağlayan ama ömrünü kısaltmayan bir hap olsa içer miydin?",
+        "en": "💊 If there was a pill allowing you to sleep only 3 hours a day without shortening your life, would you take it?",
+        "options": ["Günde 21 saat bana kalır! / 21 free hours for me!", "Risk almam, uykum kutsal / No risks, sleep is sacred"]
+    },
+    {
+        "tr": "🕶️ Tamamen dijital, gerçekçi bir sanal gerçeklik dünyasında ömrünün sonuna kadar yaşamak ister miydin?",
+        "en": "🕶️ Would you want to live out the rest of your life in a completely digital, hyper-realistic virtual reality world?",
+        "options": ["Hemen bağlanırım / Plug me in right now", "Gerçek acı bile tatlıdır / Real pain over fake bliss"]
+    },
+    {
+        "tr": "💰 Eline ömür boyu çalışmayacağın kadar para geçse ilk ne yapardın?",
+        "en": "💰 If you suddenly got enough money to never work again, what would you do first?",
+        "options": ["Dünyayı gezerim / Travel the world", "Yeni projeler kurarım / Build new projects"]
+    },
+    {
+        "tr": "⚖️ Yapay zeka kritik bir suç işlediğinde, ceza kod yazana mı yoksa yapay zekanın kendisine mi kesilmeli?",
+        "en": "⚖️ When an AI commits a critical crime, should the punishment go to the developer or the AI itself?",
+        "options": ["Kod yazana / To the developer", "Yapay zekaya / To the AI"]
+    },
+    {
+        "tr": "🌐 İnsanlık için en büyük varoluşsal tehdit hangisidir?",
+        "en": "🌐 What is the greatest existential threat to humanity?",
+        "options": ["Kontrolsüz Yapay Zeka / Rogue AI", "İklim Krizi / Climate Crisis"]
+    }
+]
+
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+def save_history(history):
+    if len(history) > 3000:
+        history = history[-3000:]
+    try:
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(history, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"History save error: {e}")
+
+def send_to_telegram(title, link, image_url):
+    if not image_url:
+        image_url = "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop"
+
+    title_tr = title
+    title_en = title
+    try:
+        res_tr = GoogleTranslator(source='auto', target='tr').translate(title)
+        if res_tr: title_tr = res_tr
+    except: pass
+
+    try:
+        res_en = GoogleTranslator(source='auto', target='en').translate(title)
+        if res_en: title_en = res_en
+    except: pass
+
+    caption = (
+        f"🚨 **SINGULARITY HUB // INTEL**\n\n"
+        f"🇹🇷 **{title_tr}**\n\n"
+        f"-------------------------------------\n\n"
+        f"🇬🇧 **{title_en}**\n\n"
+        f"-------------------------------------\n\n"
+        f"🔗 [Kaynağa Git / Source Link]({link})"
+    )
+    
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "photo": image_url,
+        "caption": caption,
+        "parse_mode": "Markdown"
+    }
+    
+    try:
+        resp = requests.post(url, json=payload, timeout=15)
+        if resp.status_code != 200:
+            payload["parse_mode"] = None
+            requests.post(url, json=payload, timeout=15)
+    except Exception as e:
+        print(f"Telegram send error: {e}")
+
+def send_poll_to_telegram():
+    poll = random.choice(GLOBAL_POLLS_POOL)
+    
+    poll_text = (
+        f"📊 KÜRESEL ANKET / GLOBAL POLL\n\n"
+        f"🇹🇷 {poll['tr']}\n\n"
+        f"───────────────────\n\n"
+        f"🇬🇧 {poll['en']}"
+    )
+    
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPoll"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "question": poll_text[:300],  
+        "options": poll["options"],
+        "is_anonymous": False
+    }
+    
+    try:
+        resp = requests.post(url, json=payload, timeout=15)
+        print("📊 Küresel anket başarıyla kanala gönderildi:", resp.status_code)
+    except Exception as e:
+        print(f"Poll send error: {e}")
+
+def extract_image(entry):
+    if 'media_content' in entry and entry.media_content:
+        for m in entry.media_content:
+            if 'url' in m: return m['url']
+    if 'media_thumbnail' in entry and entry.media_thumbnail:
+        for t in entry.media_thumbnail:
+            if 'url' in t: return t['url']
+    if 'summary' in entry:
+        import re
+        m = re.search(r'<img[^>]+src="([^">]+)"', entry.summary)
+        if m: return m.group(1)
+    return None
+
+def rss_poller():
+    print("🚀 Singularity Hub Otonom Tarama ve Küresel Akış Başlatıldı...")
+    
+    history = load_history()
+    if not history:
+        print("📥 İlk çalıştırma: Eski haberler hafızaya alınıyor...")
+        for feed_url in LIVE_RSS_FEEDS:
+            try:
+                feed = feedparser.parse(feed_url)
+                for entry in feed.entries[:2]:
+                    nid = getattr(entry, 'id', None) or getattr(entry, 'link', None)
+                    if nid: history.append(nid)
+            except: pass
+        save_history(history)
+
+    last_poll_date_hour = ""
+
+    while True:
+        try:
+            history = load_history()
+            updated = False
+
+            # --- BELİRLİ SAATLERDE ANKET KONTROLÜ (06:00, 12:00, 18:00, 00:00) ---
+            now = datetime.now()
+            current_hour = now.hour
+            current_date_str = now.strftime("%Y-%m-%d")
+            
+            target_hours = [0, 6, 12, 18]
+            
+            if current_hour in target_hours:
+                time_slot_key = f"{current_date_str}-{current_hour}"
+                if last_poll_date_hour != time_slot_key:
+                    send_poll_to_telegram()
+                    last_poll_date_hour = time_slot_key
+                    time.sleep(10)
+
+            # --- RSS HABER TARAMA DÖNGÜSÜ ---
+            shuffled_feeds = list(LIVE_RSS_FEEDS)
+            random.shuffle(shuffled_feeds)
+
+            for feed_url in shuffled_feeds:
+                try:
+                    feed = feedparser.parse(feed_url)
+                    for entry in feed.entries[:2]:
+                        news_id = getattr(entry, 'id', None) or getattr(entry, 'link', None)
+                        title = getattr(entry, 'title', 'Başlıksız')
+                        link = getattr(entry, 'link', '#')
+
+                        if not news_id: continue
+
+                        if news_id not in history:
+                            image_url = extract_image(entry)
+                            print(f"📢 Yeni İstihbarat Yakalandı: {title}")
+                            send_to_telegram(title, link, image_url)
+                            history.append(news_id)
+                            updated = True
+                            time.sleep(15)
+                except Exception as feed_err:
+                    print(f"Feed error ({feed_url}): {feed_err}")
+
+            if updated:
+                save_history(history)
+
+        except Exception as e:
+            print(f"Poller loop error: {e}")
+
+        time.sleep(POLL_INTERVAL)
 
 @app.route("/")
 def home():
-    return "Singularity Hub Otonom Akış ve Küresel Radar Sistemidir. Bot aktif çalışıyor!", 200
+    return "Singularity Hub (Bilingual Intelligence & Polls Feed) is Live!"
 
-def get_rss_feed():
-    try:
-        url = "https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr"
-        feed = feedparser.parse(url)
-        return feed.entries[:5]
-    except Exception as e:
-        print(f"RSS Çekme Hatası: {e}")
-        return []
-
-def translate_text(text):
-    try:
-        return GoogleTranslator(source='auto', target='en').translate(text)
-    except Exception as e:
-        print(f"Çeviri Hatası: {e}")
-        return text
-
-def rss_poller():
-    print("Otonom RSS Poller arka plan iş parçacığı başlatıldı...")
-    while True:
-        try:
-            entries = get_rss_feed()
-            for entry in entries:
-                title = entry.get('title', '')
-                link = entry.get('link', '')
-                
-                # Çift dilli akış mesajı oluşturma
-                translated_title = translate_text(title)
-                
-                message = (
-                    f"🚨 **SİNGULARITY GÜNCEL RADAR** 🚨\n\n"
-                    f"🇹🇷 **TR:** {title}\n\n"
-                    f"🇬🇧 **EN:** {translated_title}\n\n"
-                    f"🔗 [Habere Git]({link})"
-                )
-                
-                payload = {
-                    "chat_id": TELEGRAM_CHANNEL_ID,
-                    "text": message,
-                    "parse_mode": "Markdown",
-                    "disable_web_page_preview": False
-                }
-                
-                # Telegram'a gönder
-                res = requests.post(TELEGRAM_API_URL, json=payload)
-                if res.status_code == 200:
-                    print(f"Haber başarıyla gönderildi: {title[:30]}...")
-                else:
-                    print(f"Telegram Gönderim Hatası: {res.text}")
-                
-                # Çok sık spam atmasın diye kısa bekleme
-                time.sleep(10)
-                
-        except Exception as e:
-            print(f"Poller Döngü Hatası: {e}")
-            
-        time.sleep(POLL_INTERVAL)
+# --- UPTİMEROBOT İÇİN EKLENEN SAĞLIK KONTROLÜ ROTASI ---
+@app.route("/health")
+def health_check():
+    return "OK", 200
 
 @app.route(f"/{TELEGRAM_BOT_TOKEN}", methods=["POST"])
 def telegram_webhook():
@@ -102,7 +263,7 @@ def telegram_webhook():
             
     return "OK", 200
 
-# ==================== BACKGROUND THREAD ====================
+# ================= BACKGROUND THREAD =================
 try:
     worker = threading.Thread(target=rss_poller, daemon=True)
     worker.start()
