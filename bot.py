@@ -28,7 +28,7 @@ LIVE_RSS_FEEDS = [
     "https://rss.dw.com/rdf/rss-en-top"
 ]
 
-# ================= GENİŞLETİLMİŞ KÜRESEL ANKET & İKİLEM HAVUZU =================
+# ================= GENİŞLETİLMİŞ KÜRESEL ANKET HAVUZU =================
 GLOBAL_POLLS_POOL = [
     {
         "tr": "🤖 Yapay Zeka (AGI) önümüzdeki 10 yılda senin mesleğini tamamen ortadan kaldırabilir mi?",
@@ -69,6 +69,60 @@ GLOBAL_POLLS_POOL = [
         "tr": "🌐 İnsanlık için en büyük varoluşsal tehdit hangisidir?",
         "en": "🌐 What is the greatest existential threat to humanity?",
         "options": ["Kontrolsüz Yapay Zeka / Rogue AI", "İklim Krizi / Climate Crisis"]
+    },
+    {
+        "tr": "🚗 Sürücüsüz otonom araçlara tamamen güvenip arka koltukta uyuyabilir misin?",
+        "en": "🚗 Would you completely trust fully autonomous self-driving cars and sleep in the back seat?",
+        "options": ["Gözümü kırpmadan uyurum / Sleep soundly", "Asla direksiyonsuz olmaz / Never without a steering wheel"]
+    },
+    {
+        "tr": "🧬 Genetik olarak tasarlanmış (süper zeki veya atletik) bebekler yasal hale gelmeli mi?",
+        "en": "🧬 Should genetically engineered (super-smart or athletic) designer babies become legal?",
+        "options": ["Evet, evrimsel sıçrama / Yes, evolutionary leap", "Kesinlikle yasaklanmalı / Strictly prohibited"]
+    },
+    {
+        "tr": "🛰️ Dünya dışı akıllı yaşam formu (uzaylılar) keşfedilse, bunu insanlıktan gizlemeliler mi?",
+        "en": "🛰️ If an extraterrestrial intelligent life form is discovered, should it be kept secret from humanity?",
+        "options": ["Halkla hemen paylaşılmalı / Share immediately", "Panik yaratır, gizlenmeli / Too much panic, hide it"]
+    },
+    {
+        "tr": "⏱️ Zamanda geriye gidip geçmişi değiştirmek mümkün olsa, kelebek etkisinden korkar mıydın?",
+        "en": "⏱️ If time travel to the past was possible, would you fear the butterfly effect?",
+        "options": ["Geçmişe müdahale edilmez / Don't mess with the past", "Tarihi yeniden yazardım / Rewrite history"]
+    }
+]
+
+# ================= STRATEJİK & İSTİHBARAT BİLGİ HAVUZU =================
+STRATEGIC_INTEL_POOL = [
+    {
+        "category": "ASKERİ AR-GE & SAVUNMA",
+        "tr": "🚀 **Hipersonik Silah Teknolojisi:** Ses hızının 5 katı (Mach 5+) hızla hareket eden bu füzeler, geleneksel hava savunma sistemlerini (Patriot, S-400 vb.) tamamen işlevsiz kılabilir. Çin ve Rusya'nın ardından ABD de bu alanda tungsten kinetik başlıklar üzerinde Ar-Ge çalışmalarını yoğunlaştırmıştır.",
+        "en": "🚀 **Hypersonic Weapon Tech:** Moving at Mach 5+, these missiles render traditional air defense systems obsolete."
+    },
+    {
+        "category": "SİBER İSTİHBARAT & DEEP WEB",
+        "tr": "🌐 **Soğan Yönlendirme (Onion Routing) Gerçeği:** Deep Web ve Tor ağı, verileri küresel çapta rastgele şifrelenmiş üç farklı düğümden (node) geçirerek IP adresini maskeler. İstihbarat servislerinin bu ağları izlemesi için çıkış düğümlerinde (exit node) derin trafik analizi yapması gerekir.",
+        "en": "🌐 **Onion Routing Reality:** Tor masks IP addresses by routing data through three encrypted nodes globally."
+    },
+    {
+        "category": "STRATEJİK SİLAHLAR",
+        "tr": "⚛️ **Termonükleer (Hidrojen) Bombalar:** Klasik atom bombalarından (fisyon) farklı olarak füzyon prensibiyle çalışırlar. Başlangıç tetiklemesi için bir atom bombası kullanılarak güneşin merkezindeki sıcaklık ve basınç taklit edilir; yıkıcı güçleri megatonlarca TNT eşdeğerindedir.",
+        "en": "⚛️ **Thermonuclear Bombs:** Operating on nuclear fusion, their destructive power reaches megatons of TNT."
+    },
+    {
+        "category": "BUNU BİLİYOR MUYDUNUZ?",
+        "tr": "💡 **Kuantum Üstünlüğü (Quantum Supremacy):** Google'ın Sycamore kuantum işlemcisi, dünyanın en güçlü süper bilgisayarının 10.000 yılda çözebileceği bir hesaplama karmaşasını sadece 200 saniyede tamamlamıştır. Bu durum, gelecekteki tüm şifreleme altyapılarını tehdit etmektedir.",
+        "en": "💡 **Quantum Supremacy:** Google's processor solved a 10,000-year calculation in just 200 seconds."
+    },
+    {
+        "category": "DİJİTAL MAHREMİYET",
+        "tr": "👁️ **Metadata (Üst Veri) Analizi Nedir?:** İstihbarat ajansları için içeriğin kendisinden ziyade *kimin, kime, ne zaman ve nereden* mesaj attığı (metadata) çok daha değerlidir. Büyük veri algoritmaları bu metadata ile bireylerin psikolojik profillerini haritalandırabilir.",
+        "en": "👁️ **Metadata Analysis:** For intelligence agencies, *who contacted whom and when* matters more than the message content."
+    },
+    {
+        "category": "STRATEJİK SİLAHLAR",
+        "tr": "💣 **Termobarik (Vakum) Bombalar:** Hedef bölgesindeki havadaki oksijeni emerek son derece yüksek sıcaklıkta devasa bir patlama dalgası ve vakum etkisi yaratırlar. Sığınakları, tünelleri ve yeraltı tesislerini etkisiz hale getirmede geleneksel patlayıcılardan çok daha yıkıcıdırlar.",
+        "en": "💣 **Thermobaric Bombs:** They consume ambient oxygen to create a high-temperature blast wave and vacuum effect, devastating bunkers."
     }
 ]
 
@@ -115,12 +169,23 @@ def send_to_telegram(title, link, image_url):
         f"🔗 [Kaynağa Git / Source Link]({link})"
     )
     
+    reply_markup = {
+        "inline_keyboard": [
+            [
+                {"text": "👍 Harika / Great", "callback_data": "react_good"},
+                {"text": "🔥 Kritik / Critical", "callback_data": "react_fire"},
+                {"text": "🚀 Vizyon / Vision", "callback_data": "react_space"}
+            ]
+        ]
+    }
+
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
         "photo": image_url,
         "caption": caption,
-        "parse_mode": "Markdown"
+        "parse_mode": "Markdown",
+        "reply_markup": reply_markup
     }
     
     try:
@@ -130,6 +195,40 @@ def send_to_telegram(title, link, image_url):
             requests.post(url, json=payload, timeout=15)
     except Exception as e:
         print(f"Telegram send error: {e}")
+
+def send_strategic_intel_to_telegram():
+    intel = random.choice(STRATEGIC_INTEL_POOL)
+    
+    message_text = (
+        f"🛡️ **SINGULARITY HUB // ÖZEL DOSYA & İSTİHBARAT**\n"
+        f"📂 *Kategori: {intel['category']}*\n\n"
+        f"🇹🇷 {intel['tr']}\n\n"
+        f"───────────────────\n\n"
+        f"🇬🇧 {intel['en']}"
+    )
+
+    reply_markup = {
+        "inline_keyboard": [
+            [
+                {"text": "💡 İlginç / Fascinating", "callback_data": "intel_good"},
+                {"text": "🎯 Derin Bilgi / Deep Info", "callback_data": "intel_deep"}
+            ]
+        ]
+    }
+
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message_text,
+        "parse_mode": "Markdown",
+        "reply_markup": reply_markup
+    }
+
+    try:
+        resp = requests.post(url, json=payload, timeout=15)
+        print("🛡️ Stratejik istihbarat dosyası kanala gönderildi:", resp.status_code)
+    except Exception as e:
+        print(f"Strategic Intel send error: {e}")
 
 def send_poll_to_telegram():
     poll = random.choice(GLOBAL_POLLS_POOL)
@@ -169,7 +268,7 @@ def extract_image(entry):
     return None
 
 def rss_poller():
-    print("🚀 Singularity Hub Otonom Tarama ve Küresel Akış Başlatıldı...")
+    print("🚀 Singularity Hub Otonom Tarama ve İstihbarat Akışı Başlatıldı...")
     
     history = load_history()
     if not history:
@@ -184,25 +283,32 @@ def rss_poller():
         save_history(history)
 
     last_poll_date_hour = ""
+    last_intel_hour = -1
 
     while True:
         try:
             history = load_history()
             updated = False
 
-            # --- BELİRLİ SAATLERDE ANKET KONTROLÜ (06:00, 12:00, 18:00, 00:00) ---
             now = datetime.now()
             current_hour = now.hour
             current_date_str = now.strftime("%Y-%m-%d")
             
-            target_hours = [0, 6, 12, 18]
-            
-            if current_hour in target_hours:
+            # --- ANKET KONTROLÜ: HER 3 SAATTE BİR (00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00) ---
+            poll_target_hours = [0, 3, 6, 9, 12, 15, 18, 21]
+            if current_hour in poll_target_hours:
                 time_slot_key = f"{current_date_str}-{current_hour}"
                 if last_poll_date_hour != time_slot_key:
                     send_poll_to_telegram()
                     last_poll_date_hour = time_slot_key
                     time.sleep(10)
+
+            # --- STRATEJİK İSTİHBARAT / DOSYA PAYLAŞIMI (Örn. Günde 2 Kez: 09:00 ve 21:00) ---
+            intel_target_hours = [9, 21]
+            if current_hour in intel_target_hours and last_intel_hour != current_hour:
+                send_strategic_intel_to_telegram()
+                last_intel_hour = current_hour
+                time.sleep(10)
 
             # --- RSS HABER TARAMA DÖNGÜSÜ ---
             shuffled_feeds = list(LIVE_RSS_FEEDS)
@@ -238,9 +344,8 @@ def rss_poller():
 
 @app.route("/")
 def home():
-    return "Singularity Hub (Bilingual Intelligence & Polls Feed) is Live!"
+    return "Singularity Hub (Bilingual Intelligence & Deep Tech Feed) is Live!"
 
-# --- UPTİMEROBOT İÇİN EKLENEN SAĞLIK KONTROLÜ ROTASI ---
 @app.route("/health")
 def health_check():
     return "OK", 200
@@ -248,18 +353,24 @@ def health_check():
 @app.route(f"/{TELEGRAM_BOT_TOKEN}", methods=["POST"])
 def telegram_webhook():
     data = request.get_json()
-    if data and "message" in data:
-        msg = data["message"]
-        chat_id = msg["chat"]["id"]
-        text = msg.get("text", "")
-        
-        if text.startswith("/post"):
-            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-            payload = {
-                "chat_id": chat_id,
-                "text": "🤖 Singularity Hub Otonom Modda, Çift Dilli Akış ve Küresel Radar Sistemiyle Aktif!"
-            }
-            requests.post(url, json=payload)
+    if data:
+        if "callback_query" in data:
+            query = data["callback_query"]
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/answerCallbackQuery"
+            requests.post(url, json={"callback_query_id": query["id"], "text": "İstihbarat kaydedildi! ⚡"})
+
+        elif "message" in data:
+            msg = data["message"]
+            chat_id = msg["chat"]["id"]
+            text = msg.get("text", "")
+            
+            if text.startswith("/post"):
+                url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "🤖 Singularity Hub Otonom İstihbarat Modunda, 3 Saatlik Anket Döngüsü ve Küresel Radar Sistemiyle Aktif!"
+                }
+                requests.post(url, json=payload)
             
     return "OK", 200
 
@@ -267,7 +378,7 @@ def telegram_webhook():
 try:
     worker = threading.Thread(target=rss_poller, daemon=True)
     worker.start()
-    print("✅ Arka plan iş parçacığı ve otonom akış motoru tetiklendi.")
+    print("✅ Arka plan iş parçacığı ve istihbarat motoru tetiklendi.")
 except Exception as e:
     print(f"Thread başlatma hatası: {e}")
 
